@@ -23,9 +23,4 @@ The following packages are required to run the project:
 - Install the required packages: pip install -r requirements.txt
 - Download the trained models and put them in the models directory.
 
-## Usage
-Navigate to the project directory: cd repo-name
-Run the following command: python generate_page.py path/to/image.png
-The generated image will be displayed on the screen.
-Contributing
-Contributions to this project are always welcome. If you find any bugs or have any suggestions, please create an issue or submit a pull request.
+
