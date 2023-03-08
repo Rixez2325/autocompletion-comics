@@ -4,10 +4,10 @@ This is a project that generates the next page of a manga/comic based on the tex
 ## How it works
 The process of generating the next page of the manga/comic involves the following steps:
 
-Text Extraction: The text is extracted from the current page using Tesseract OCR. This text is then used as an input to the captioning model.
-Caption Generation: The captioning model takes in the text and generates a caption for the next page.
-Image Generation: The GAN model takes in the current page and the generated caption and generates an image that represents the next page of the manga/comic.
-The generated image is then displayed to the user.
+- Text Extraction: The text is extracted from the current page using Tesseract OCR. This text is then used as an input to the captioning model.
+- Caption Generation: The captioning model takes in the text and generates a caption for the next page.
+- Image Generation: The GAN model takes in the current page and the generated caption and generates an image that represents the next page of the manga/comic.
+- The generated image is then displayed to the user.
 
 ## Requirements
 The following packages are required to run the project:
