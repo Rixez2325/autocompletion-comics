@@ -1,3 +1,4 @@
+from time import sleep
 import cv2 as cv
 import numpy as np
 import math
@@ -53,31 +54,77 @@ import math
 # cv.waitKey(0)
 
 from PIL import Image
-import imageio
 from skimage.feature import canny
 from skimage.morphology import dilation
 from scipy import ndimage as ndi
-from skimage.measure import label
+from skimage.measure import label, regionprops
 from skimage.color import label2rgb
 
 
 
 
-src_img = cv.imread('inputs_images/asterix.png')
+src_img = cv.imread('inputs_images/batman.png')
+
+Image.fromarray(src_img).show()
 
 gray_img = cv.cvtColor(src_img, cv.COLOR_BGR2GRAY)
 edges = canny(gray_img)
-thick_edges = dilation(dilation(edges))
+
+thick_edges = edges
+# Image.fromarray(thick_edges).show()
+
 segmentation = ndi.binary_fill_holes(thick_edges)
-
-
 labels = label(segmentation)
 
-Image.fromarray(np.uint8(label2rgb(labels, bg_label=0) * 255)).show()
-
-print(segmentation)
+# Image.fromarray(np.uint8(label2rgb(labels, bg_label=0) * 255)).show()
 
 
-# Image.fromarray(edges).show()
-# Image.fromarray(thick_edges).show()
-# Image.fromarray(segmentation).show()
+
+def do_bboxes_overlap(a, b):
+    return (
+        a[0] < b[2] and
+        a[2] > b[0] and
+        a[1] < b[3] and
+        a[3] > b[1]
+    )
+
+def merge_bboxes(a, b):
+    return (
+        min(a[0], b[0]),
+        min(a[1], b[1]),
+        max(a[2], b[2]),
+        max(a[3], b[3])
+    )
+
+regions = regionprops(labels)
+panels = []
+
+for region in regions:
+
+    for i, panel in enumerate(panels):
+        if do_bboxes_overlap(region.bbox, panel):
+            panels[i] = merge_bboxes(panel, region.bbox)
+            break
+    else:
+        panels.append(region.bbox)
+
+for i, bbox in reversed(list(enumerate(panels))):
+    area = (bbox[2] - bbox[0]) * (bbox[3] - bbox[1])
+    if area < 0.01 * src_img.shape[0] * src_img.shape[1]:
+        del panels[i]
+
+
+panel_img = np.zeros_like(labels)
+
+for i, bbox in enumerate(panels, start=1):
+    # panel_img[bbox[0]:bbox[2], bbox[1]:bbox[3]] = i
+    # if i == 2:
+    #     break
+    panel = src_img[bbox[0]:bbox[2], bbox[1]:bbox[3]]
+    # Image.fromarray(panel).show()
+    cv.imwrite(f"outputs/batman_panel_{i}.png", panel)
+    # Image.fromarray(np.uint8(label2rgb(panel, bg_label=0) * 255)).show()
+
+# Image.fromarray(np.uint8(label2rgb(panel_img, bg_label=0) * 255)).show()
+
+cv.waitKey(0)
