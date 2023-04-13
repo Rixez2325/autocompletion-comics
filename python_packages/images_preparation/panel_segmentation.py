@@ -4,14 +4,13 @@ from scipy import ndimage
 from skimage.measure import label, regionprops
 
 
-
 def split_boards_into_panels(images_path: str) -> list[np.ndarray]:
     src_img = cv2.imread(images_path)
     edges_img = apply_canny_edge_detection(src_img)
     regions = extract_regions(edges_img)
     panels_bbox = refine_regions_into_panels(regions, src_img.shape)
     panels = cut_panels_from_source(src_img, panels_bbox)
-    
+
     return panels
 
 
@@ -37,21 +36,11 @@ def extract_regions(edges_img: np.ndarray) -> list:
 
 
 def is_bboxes_overlaping(a: tuple, b: tuple) -> bool:
-    return (
-        a[0] < b[2] and
-        a[2] > b[0] and
-        a[1] < b[3] and
-        a[3] > b[1]
-    )
+    return a[0] < b[2] and a[2] > b[0] and a[1] < b[3] and a[3] > b[1]
 
 
 def merge_bboxes(a: tuple, b: tuple) -> tuple:
-    return (
-        min(a[0], b[0]),
-        min(a[1], b[1]),
-        max(a[2], b[2]),
-        max(a[3], b[3])
-    )
+    return (min(a[0], b[0]), min(a[1], b[1]), max(a[2], b[2]), max(a[3], b[3]))
 
 
 def refine_regions_into_panels(regions: list, img_shape: tuple) -> list[tuple]:
@@ -75,17 +64,12 @@ def remove_small_panels(panels_bbox: list[tuple], img_shape: tuple) -> list[tupl
     return panels_bbox
 
 
-def cut_panels_from_source(src_img: np.ndarray, panels_bbox: list[tuple]) -> list[np.ndarray]:
+def cut_panels_from_source(
+    src_img: np.ndarray, panels_bbox: list[tuple]
+) -> list[np.ndarray]:
     panels = []
     for bbox in panels_bbox:
-        panel = src_img[bbox[0]:bbox[2], bbox[1]:bbox[3]]
+        panel = src_img[bbox[0] : bbox[2], bbox[1] : bbox[3]]
         panels.append(panel)
-    
+
     return panels
-
-
-panels = split_boards_into_panels('experimentations/line_detection/inputs_images/batman.png')
-for i, panel in enumerate(panels, start=1):
-    cv2.imshow(f"panel_{i}", panel)
-
-cv2.waitKey(0)
