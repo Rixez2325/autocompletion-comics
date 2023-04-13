@@ -65,7 +65,7 @@ from skimage.color import label2rgb
 
 src_img = cv.imread('inputs_images/batman.png')
 
-Image.fromarray(src_img).show()
+# Image.fromarray(src_img).show()
 
 gray_img = cv.cvtColor(src_img, cv.COLOR_BGR2GRAY)
 edges = canny(gray_img)
@@ -73,10 +73,11 @@ edges = canny(gray_img)
 thick_edges = edges
 # Image.fromarray(thick_edges).show()
 
+
 segmentation = ndi.binary_fill_holes(thick_edges)
 labels = label(segmentation)
 
-# Image.fromarray(np.uint8(label2rgb(labels, bg_label=0) * 255)).show()
+Image.fromarray(np.uint8(label2rgb(labels, bg_label=0) * 255)).show()
 
 
 
