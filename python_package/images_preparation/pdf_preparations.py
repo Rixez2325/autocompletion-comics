@@ -1,14 +1,17 @@
+import cv2
 import fitz
 from fitz import Page, Document, Pixmap, Matrix, Rect
+import numpy as np
 
 OUTPUT_WIDTH = 600
 
 
-def main(file_path: str, output_directory: str) -> None:
+def process_pdf(file_path: str) -> list[np.ndarray]:
     title = get_title(file_path)
     pdf: Document = fitz.open(file_path)
     pages = split_document(pdf)
-    save_pages(pages, output_directory, title)
+    return to_ndarray(pages)
+    # save_pages(pages, output_directory, title)
 
 
 def get_title(file_path: str) -> str:
@@ -39,7 +42,14 @@ def save_pages(
         img.save(img_full_path)
 
 
-main(
-    "datasets/comics_pdf/DC Marvel Comics - Batman & Spiderman.pdf",
-    "datasets/comics_pages",
-)
+def to_ndarray(pages: list[Page]) -> list[np.ndarray]:
+    image_list = [page_to_ndarray(page) for page in pages]
+    return image_list
+
+
+def page_to_ndarray(page: Page) -> np.ndarray:
+    zoom_matrix = get_zoom_matrix(page.bound())
+    pix = page.get_pixmap(matrix=zoom_matrix)
+    img = np.frombuffer(pix.samples, dtype=np.uint8)
+    img = img.reshape((pix.height, pix.width, pix.n))
+    return img
