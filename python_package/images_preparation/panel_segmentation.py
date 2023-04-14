@@ -4,8 +4,8 @@ from scipy import ndimage
 from skimage.measure import label, regionprops
 
 
-def split_boards_into_panels(images_path: str) -> list[np.ndarray]:
-    src_img = cv2.imread(images_path)
+def process_page(image_path: str) -> list[np.ndarray]:
+    src_img = cv2.imread(image_path)
     edges_img = apply_canny_edge_detection(src_img)
     regions = extract_regions(edges_img)
     panels_bbox = refine_regions_into_panels(regions, src_img.shape)
