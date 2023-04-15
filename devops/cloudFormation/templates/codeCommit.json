@@ -1,6 +1,6 @@
 {
     "Resources": {
-        "MyRepo": {
+        "autocompletionComicsRepo": {
             "Type": "AWS::CodeCommit::Repository",
             "Properties": {
                 "RepositoryName": "autocompletion-comics",
