@@ -36,3 +36,5 @@ ipython_config.py
 # datasets
 datasets/*/*.png
 datasets/*/*.pdf
+
+devops/cloudFormation/request_and_reply.md

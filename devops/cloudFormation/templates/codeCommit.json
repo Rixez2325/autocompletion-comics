@@ -1,0 +1,11 @@
+{
+    "Resources": {
+        "autocompletionComicsRepo": {
+            "Type": "AWS::CodeCommit::Repository",
+            "Properties": {
+                "RepositoryName": "autocompletion-comics",
+                "RepositoryDescription": "Projet Annuel 4IABD"
+            }
+        }
+    }
+}
