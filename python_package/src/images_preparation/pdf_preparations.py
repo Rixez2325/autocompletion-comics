@@ -7,11 +7,9 @@ OUTPUT_WIDTH = 600
 
 
 def process_pdf(file_path: str) -> list[np.ndarray]:
-    title = get_title(file_path)
     pdf: Document = fitz.open(file_path)
     pages = split_document(pdf)
     return to_ndarray(pages)
-    # save_pages(pages, output_directory, title)
 
 
 def get_title(file_path: str) -> str:
