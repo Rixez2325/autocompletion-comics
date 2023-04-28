@@ -12,7 +12,7 @@ setuptools.setup(
     name="autocompletion-comics",
     version="0.0.1",
     author="Marvin CHERRIERE, Florent COMPAGNONI, Daoud HANDAS",
-    author_email="m.cherriere.fortune@gmail.com, florent.compagnoni+dev@gmail.com, daoudhandas@gmail.com",
+    author_email="mcherriere.pro@gmail.com, florent.compagnoni+dev@gmail.com, daoudhandas@gmail.com",
     description="Package used for comics generator app",
     long_description=long_description,
     long_description_content_type="text/markdown",

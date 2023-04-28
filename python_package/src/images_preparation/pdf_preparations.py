@@ -1,9 +1,18 @@
-import cv2
+import os
 import fitz
 from fitz import Page, Document, Pixmap, Matrix, Rect
 import numpy as np
+from images_preparation.utils import *
 
 OUTPUT_WIDTH = 600
+IMAGE_TYPE = "_##_page_"
+
+
+def cut_pdf(input_directory: str = PDF_DIR, output_directory: str = COMICS_PAGES_DIR):
+    comics = os.listdir(input_directory)
+    for comic in comics:
+        comic_pages = process_pdf(f"{input_directory}/{comic}")
+        save_images(comic_pages, output_directory, comic[:-4], IMAGE_TYPE)
 
 
 def process_pdf(file_path: str) -> list[np.ndarray]:
@@ -25,21 +34,6 @@ def get_zoom_matrix(bound: Rect) -> Matrix:
     return fitz.Matrix(zoom, zoom)
 
 
-def save_pages(
-    pages: list[Page],
-    output_directory: str,
-    document_title: str,
-    format: str = "png",
-) -> None:
-    for i, page in enumerate(pages):
-        zoom_matrix = get_zoom_matrix(page.bound())
-        img: Pixmap = page.get_pixmap(matrix=zoom_matrix)
-
-        img_name = f"{document_title}_page_{i}.{format}"
-        img_full_path = f"{output_directory}/{img_name}"
-        img.save(img_full_path)
-
-
 def to_ndarray(pages: list[Page]) -> list[np.ndarray]:
     image_list = [page_to_ndarray(page) for page in pages]
     return image_list
@@ -47,7 +41,7 @@ def to_ndarray(pages: list[Page]) -> list[np.ndarray]:
 
 def page_to_ndarray(page: Page) -> np.ndarray:
     zoom_matrix = get_zoom_matrix(page.bound())
-    pix = page.get_pixmap(matrix=zoom_matrix)
+    pix: Pixmap = page.get_pixmap(matrix=zoom_matrix)
     img = np.frombuffer(pix.samples, dtype=np.uint8)
     img = img.reshape((pix.height, pix.width, pix.n))
     return img

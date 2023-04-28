@@ -40,4 +40,6 @@ datasets/*/*.pdf
 *.egg-info
 *build/
 
+
+devops/lambda/package*
 devops/cloudFormation/request_and_reply.md
