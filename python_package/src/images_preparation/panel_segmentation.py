@@ -1,7 +1,20 @@
 import cv2
+import os
 import numpy as np
 from scipy import ndimage
 from skimage.measure import label, regionprops
+from images_preparation.utils import *
+
+IMAGE_TYPE = "_##_panel_"
+
+
+def cut_pages(
+    input_directory: str = COMICS_PAGES_DIR, output_directory: str = PANELS_DIR
+):
+    pages = os.listdir(input_directory)
+    for page in pages:
+        panels = process_page(f"{input_directory}/{page}")
+        save_images(panels, output_directory, page[:-4], IMAGE_TYPE)
 
 
 def process_page(image_path: str) -> list[np.ndarray]:
