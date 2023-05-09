@@ -32,12 +32,12 @@ def get_original_image_from_s3(s3_connection: S3ServiceResource) -> Image:
 
 
 # TMP
-def get_original_image_from_local(file_name) -> Image:
+def get_original_image_from_local(file_name: str) -> Image:
     return Image.open(file_name)
 
 
 # TMP
-def display_bubbles(image: Image, blocks, width, height):
+def display_bubbles(image: Image, blocks: list[dict], width: int, height: int):
     for block in blocks:
         print(
             f"""
@@ -64,18 +64,18 @@ def display_bubbles(image: Image, blocks, width, height):
 
 
 # TODO check for exception
-def get_request_document_througt_local_file(file_full_path):
+def get_request_document_througt_local_file(file_full_path: str) -> dict[str, bytes]:
     with open(file_full_path, "rb") as image_file:
         return {"Bytes": image_file.read()}
 
 
 # TODO check for exception
-def get_request_document_througt_s3(bucket, document):
+def get_request_document_througt_s3(bucket: str, document: str) -> dict[str, str]:
     return {"S3Object": {"Bucket": bucket, "Name": document}}
 
 
 # TODO check for exception
-def textract_api_request(textract_client: TextractClient):
+def textract_api_request(textract_client: TextractClient) -> list[dict]:
     request_document = get_request_document_througt_local_file(DEMO_FILE)
     response = textract_client.detect_document_text(Document=request_document)
     return response["Blocks"]
@@ -93,7 +93,7 @@ def get_lines(blocks: list[dict]) -> list[dict]:
     ]
 
 
-def merge_lines(lines: list[dict], threshold=0.1):
+def merge_lines(lines: list[dict], threshold=0.1) -> list[dict]:
     bubbles = []
     for line in lines:
         bbox1 = line["BoundingBox"]
@@ -131,12 +131,12 @@ def sort_bubbles(merged_lines: list[dict]) -> list[dict]:
 
 
 # TODO dynamic definition of object name
-def write_result_in_s3_old(merged_lines: list[dict], s3_connection):
+def write_result_in_s3(merged_lines: list[dict], s3_connection: S3ServiceResource):
     json_file = json.dumps(merged_lines).encode("UTF-8")
     aws.write_in_s3(json_file, s3_connection, BUCKET, S3_DEMO_OUTPUT)
 
 
-def write_result_in_s3_old(merged_lines: list[dict], s3_connection):
+def write_result_in_s3_old(merged_lines: list[dict], s3_connection: S3ServiceResource):
     s3_file = s3_connection.Object(BUCKET, S3_DEMO_OUTPUT)
     s3_file.put(Body=(bytes(json.dumps(merged_lines).encode("UTF-8"))))
 

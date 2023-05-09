@@ -11,10 +11,15 @@ def get_s3_connection() -> S3ServiceResource:
     return boto3.resource("s3")
 
 
-def get_textract_client(region=DEFAULT_REGION) -> TextractClient:
+def get_textract_client(region: str = DEFAULT_REGION) -> TextractClient:
     return boto3.client("textract", region_name=region)
 
 
-def write_in_s3(binary_file: bytes, s3_connection: S3ServiceResource, bucket, object):
-    s3_file: Object = s3_connection.Object(bucket, object)
+def write_in_s3(
+    binary_file: bytes,
+    s3_connection: S3ServiceResource,
+    bucket_name: str,
+    object_name: str,
+):
+    s3_file: Object = s3_connection.Object(bucket_name, object_name)
     s3_file.put(Body=binary_file)
