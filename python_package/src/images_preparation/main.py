@@ -1,7 +1,6 @@
-import os
+import argparse
 from images_preparation.pdf_preparations import cut_pdf
 from images_preparation.panel_segmentation import cut_pages
-from images_preparation.utils import parse_arguments
 
 
 def main():
@@ -26,6 +25,18 @@ def main():
             cut_pages(args.output_directory)
         else:
             cut_pages()
+
+
+def parse_arguments() -> argparse.Namespace:
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument("--process-comics", action="store_true")
+    parser.add_argument("--process-pages", action="store_true")
+    # TODO constants or parameters ?
+    parser.add_argument("--input-directory", type=str, default=None)
+    parser.add_argument("--output-directory", type=str, default=None)
+
+    return parser.parse_args()
 
 
 if __name__ == "__main__":

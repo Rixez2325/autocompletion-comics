@@ -1,5 +1,4 @@
 import cv2
-import argparse
 import numpy as np
 
 
@@ -9,17 +8,6 @@ DEFAULT_FORMAT = "png"
 PDF_DIR = "datasets/pdf"
 COMICS_PAGES_DIR = "datasets/pages"
 PANELS_DIR = "datasets/panels"
-
-
-def parse_arguments() -> argparse.Namespace:
-    parser = argparse.ArgumentParser()
-
-    parser.add_argument("--process-comics", action="store_true")
-    parser.add_argument("--process-pages", action="store_true")
-    parser.add_argument("--input-directory", type=str, default=None)
-    parser.add_argument("--output-directory", type=str, default=None)
-
-    return parser.parse_args()
 
 
 def save_images(
