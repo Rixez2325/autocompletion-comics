@@ -1,3 +1,5 @@
 opencv-python==4.7.0.72
 scikit-image==0.20.0 
 PyMuPDF==1.21.1
+boto3==1.26.129
+boto3-stubs[s3,textract]==1.26.130

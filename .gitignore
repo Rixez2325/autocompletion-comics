@@ -36,6 +36,7 @@ ipython_config.py
 # datasets
 datasets/*/*.png
 datasets/*/*.pdf
+datasets/panels_text/*
 
 *.egg-info
 *build/
