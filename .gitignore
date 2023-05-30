@@ -36,6 +36,7 @@ ipython_config.py
 # datasets
 datasets/*/*.png
 datasets/*/*.pdf
+datasets/*/*.jpeg
 datasets/panels_text/*
 
 *.egg-info
@@ -45,4 +46,4 @@ datasets/panels_text/*
 devops/lambda/package*
 devops/cloudFormation/request_and_reply.md
 
-assets/Comic-Diffusion/*
+assets/Comic-Diffusion
