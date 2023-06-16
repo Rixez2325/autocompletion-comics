@@ -1,5 +1,5 @@
 repos:
-  - repos: local
+  - repo: local
     hooks:
       - id: black
         name: black
