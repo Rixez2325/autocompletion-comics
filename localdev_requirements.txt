@@ -2,3 +2,4 @@ black==23.3.0
 pre-commit==3.3.3
 pylint==2.17.4
 pyright==1.1.314 
+flake8==6.0.0

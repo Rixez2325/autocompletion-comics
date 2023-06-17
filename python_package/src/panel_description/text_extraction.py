@@ -100,7 +100,9 @@ def init_aws_instance() -> tuple[S3ServiceResource, TextractClient]:
 
 
 # TODO check for exception
-def get_request_document_througt_local_file(file_full_path: str) -> dict[str, bytes]:
+def get_request_document_througt_local_file(
+    file_full_path: str,
+) -> dict[str, bytes]:
     with open(file_full_path, "rb") as image_file:
         return {"Bytes": image_file.read()}
 
