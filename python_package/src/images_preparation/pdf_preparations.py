@@ -2,7 +2,7 @@ import os
 import fitz
 from fitz import Page, Document, Pixmap, Matrix, Rect
 import numpy as np
-from images_preparation.utils import *
+from images_preparation.utils import save_images, PDF_DIR, COMICS_PAGES_DIR
 
 OUTPUT_WIDTH = 600
 IMAGE_TYPE = "_##_page_"

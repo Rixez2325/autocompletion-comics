@@ -25,8 +25,6 @@ import math
 # cv.waitKey(0)
 
 
-
-
 # src_img = cv.imread('inputs_images/two_picture.PNG')
 # cv.imshow('Original Image',src_img)
 
@@ -61,9 +59,7 @@ from skimage.measure import label, regionprops
 from skimage.color import label2rgb
 
 
-
-
-src_img = cv.imread('inputs_images/batman.png')
+src_img = cv.imread("inputs_images/batman.png")
 
 # Image.fromarray(src_img).show()
 
@@ -80,28 +76,18 @@ labels = label(segmentation)
 Image.fromarray(np.uint8(label2rgb(labels, bg_label=0) * 255)).show()
 
 
-
 def do_bboxes_overlap(a, b):
-    return (
-        a[0] < b[2] and
-        a[2] > b[0] and
-        a[1] < b[3] and
-        a[3] > b[1]
-    )
+    return a[0] < b[2] and a[2] > b[0] and a[1] < b[3] and a[3] > b[1]
+
 
 def merge_bboxes(a, b):
-    return (
-        min(a[0], b[0]),
-        min(a[1], b[1]),
-        max(a[2], b[2]),
-        max(a[3], b[3])
-    )
+    return (min(a[0], b[0]), min(a[1], b[1]), max(a[2], b[2]), max(a[3], b[3]))
+
 
 regions = regionprops(labels)
 panels = []
 
 for region in regions:
-
     for i, panel in enumerate(panels):
         if do_bboxes_overlap(region.bbox, panel):
             panels[i] = merge_bboxes(panel, region.bbox)
@@ -121,7 +107,7 @@ for i, bbox in enumerate(panels, start=1):
     # panel_img[bbox[0]:bbox[2], bbox[1]:bbox[3]] = i
     # if i == 2:
     #     break
-    panel = src_img[bbox[0]:bbox[2], bbox[1]:bbox[3]]
+    panel = src_img[bbox[0] : bbox[2], bbox[1] : bbox[3]]
     # Image.fromarray(panel).show()
     cv.imwrite(f"outputs/batman_panel_{i}.png", panel)
     # Image.fromarray(np.uint8(label2rgb(panel, bg_label=0) * 255)).show()

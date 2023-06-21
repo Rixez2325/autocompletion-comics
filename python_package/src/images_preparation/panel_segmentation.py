@@ -3,7 +3,7 @@ import os
 import numpy as np
 from scipy import ndimage
 from skimage.measure import label, regionprops
-from images_preparation.utils import *
+from images_preparation.utils import save_images, COMICS_PAGES_DIR, PANELS_DIR
 
 IMAGE_TYPE = "_##_panel_"
 
