@@ -29,6 +29,7 @@ def demo():
         request_document = get_request_document_througt_local_file(panel_full_path)
         blocks = textract_api_request(textract_client, request_document)
 
+        words = get_words(blocks)
         lines = get_lines(blocks)
         bubbles = merge_lines(lines)
         ordered_bubbles = sort_bubbles(bubbles)
@@ -36,7 +37,7 @@ def demo():
         with open(f"{PANELS_TEXT_DIR}/{panel}_text.json", "w") as outfile:
             json.dump(ordered_bubbles, outfile)
 
-        demo_show_result(ordered_bubbles, panel_full_path)
+        demo_show_result(ordered_bubbles, words, panel_full_path)
 
 
 # TMP
@@ -57,16 +58,20 @@ def get_original_image_from_local(file_name: str) -> Image:
 
 
 # TMP
-def demo_show_result(bubbles: list[dict], file: str):
+def demo_show_result(bubbles: list[dict], words: list[dict], file: str):
     image = get_original_image_from_local(file)
     # image = get_original_image_from_s3(s3_connection)
     width, height = image.size
-    display_bubbles(image, bubbles, width, height)
+    image = display_bubbles(image, words, width, height, "green")
+    image = display_bubbles(image, bubbles, width, height, "red")
+    image.show()
     # write_result_in_s3(merged_lines, s3_connection)
 
 
 # TMP
-def display_bubbles(image: Image, blocks: list[dict], width: int, height: int):
+def display_bubbles(
+    image: Image, blocks: list[dict], width: int, height: int, color: str
+):
     for block in blocks:
         print(
             f"""
@@ -87,9 +92,9 @@ def display_bubbles(image: Image, blocks: list[dict], width: int, height: int):
         bottom = (bbox["Top"] + bbox["Height"]) * height
         points = [(left, top), (right, top), (right, bottom), (left, bottom)]
 
-        draw.polygon((points), outline="black")
+        draw.polygon((points), outline=color)
 
-    image.show()
+    return image
 
 
 def init_aws_instance() -> tuple[S3ServiceResource, TextractClient]:
@@ -127,6 +132,18 @@ def get_lines(blocks: list[dict]) -> list[dict]:
         }
         for block in blocks
         if block["BlockType"] == "LINE" and block["Confidence"] >= MINIMUM_CONFIDENCE
+    ]
+
+
+def get_words(blocks: list[dict]) -> list[dict]:
+    return [
+        {
+            "Text": block["Text"],
+            "Confidence": block["Confidence"],
+            "BoundingBox": block["Geometry"]["BoundingBox"],
+        }
+        for block in blocks
+        if block["BlockType"] == "WORD" and block["Confidence"] >= MINIMUM_CONFIDENCE
     ]
 
 
