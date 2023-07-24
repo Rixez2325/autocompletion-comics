@@ -47,3 +47,6 @@ devops/lambda/package*
 devops/cloudFormation/request_and_reply.md
 
 assets/Comic-Diffusion
+
+**/.terraform*
+**/terraform.tfstate*

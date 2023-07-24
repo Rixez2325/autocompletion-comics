@@ -2,18 +2,16 @@ import os
 import io
 import json
 from PIL import Image, ImageDraw
-from utils import aws_utils as aws
+from utils import aws as aws
 
 from mypy_boto3_textract.client import TextractClient
 from mypy_boto3_s3.service_resource import S3ServiceResource
 
-from images_preparation.utils import PANELS_DIR
+from utils.path import PANELS_DIR, PANELS_TEXT_DIR
 
 
 MINIMUM_CONFIDENCE = 50
 THRESHOLD = 0.1
-
-PANELS_TEXT_DIR = "datasets/panels_text"
 
 S3_BUCKET = "autocompletion-comics-buckets"
 
