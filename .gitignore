@@ -38,6 +38,7 @@ datasets/*/*.png
 datasets/*/*.pdf
 datasets/*/*.jpeg
 datasets/panels_text/*
+datasets/generated_prompts/*
 
 *.egg-info
 *build/

@@ -1,7 +1,9 @@
 import openai
 import os
+import json
 from dotenv import load_dotenv
 from textwrap import dedent
+from utils.path import GENERATED_PROMPS_DIR, PANELS_TEXT_DIR
 
 GPT_MODEL = "gpt-3.5-turbo"
 
@@ -10,8 +12,8 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 
 
 def ask_gpt(
-    nb_panels_to_generate: int,
     previous_panels_description: list[dict],
+    nb_panels_to_generate: int = 4,
 ) -> list[dict]:
     messages = set_message(nb_panels_to_generate, previous_panels_description)
     response = openai.ChatCompletion.create(model=GPT_MODEL, messages=messages)
@@ -81,6 +83,45 @@ def set_message(
     ]
 
 
+def save_promps(generated_prompts: list[dict]):
+    output_path = f"{GENERATED_PROMPS_DIR}/promps.json"
+    with open(output_path, "w") as outfile:
+        json.dump(generated_prompts, outfile)
+
+
+def get_previous_descriptions():
+    descriptions = []
+    previous_panels_text = os.listdir(PANELS_TEXT_DIR)
+    for panel_text_file in previous_panels_text:  # TODO zip
+        current_description = {
+            "characters": [
+                "batman",
+                "superman",
+            ],  # because no probant result with computer vision
+            "visual_context": "night, city",  # because no probant result with computer vision
+            "text": [],
+        }
+
+        get_panels_text(panel_text_file, current_description)
+
+        descriptions.append(current_description)
+
+    return descriptions
+
+
+def get_panels_text(panel_text_file: str, current_description: dict):
+    with open(f"{PANELS_TEXT_DIR}/{panel_text_file}", "r") as f:
+        panel_text = json.load(f)
+        for text in panel_text:
+            current_description["text"].append(text["Text"])
+
+
+def generate_prompts(input_dir: str, output_dir: str):
+    previous_descriptions = get_previous_descriptions()
+    generated_prompts = ask_gpt(previous_descriptions)
+    save_promps(generated_prompts)
+
+
 def demo():
     demo_description = [
         {
@@ -95,8 +136,10 @@ def demo():
         },
     ]
 
-    prompt_str_demo = "Panel 3:\ncharacters: batman, superman, the Joker\nvisual_context: in an alley, dimly lit by a street lamp\ntext: We have a common enemy, Joker. Let's take him down.\n\nPanel 4:\ncharacters: batman, superman, the Joker\nvisual_context: Mid-battle in a cluttered warehouse\ntext: We won't let you hurt anyone else, Joker.\n\nPanel 5:\ncharacters: batman, superman, the Joker\nvisual_context: In the aftermath of the battle, with the Joker lying defeated\ntext: We make a good team, Superman.\n\nPanel 6:\ncharacters: batman, superman\nvisual_context: back on the roof where they started, watching the sunrise over the city\ntext: Maybe next time we can avoid the Joker's traps."
-
-    generated_prompts = ask_gpt(4, demo_description)
+    generated_prompts = ask_gpt(demo_description)
 
     print(generated_prompts)
+
+
+# demo()
+get_previous_descriptions()
