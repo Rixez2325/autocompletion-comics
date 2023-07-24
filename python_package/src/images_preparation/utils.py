@@ -4,11 +4,6 @@ import numpy as np
 
 DEFAULT_FORMAT = "png"
 
-# local repo relatives paths
-PDF_DIR = "datasets/pdf"
-COMICS_PAGES_DIR = "datasets/pages"
-PANELS_DIR = "datasets/panels"
-
 
 def save_images(
     images: list[np.ndarray],
