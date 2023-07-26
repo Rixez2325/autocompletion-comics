@@ -1,5 +1,5 @@
 import argparse
-from panel_description.text_extraction import extract_panels_text_from_local, demo
+from panel_description.text_extraction import extract_panels_text, demo
 
 
 def main(aws: bool = False):
@@ -8,7 +8,7 @@ def main(aws: bool = False):
     if args.demo:
         demo()
     else:
-        extract_panels_text_from_local(aws)
+        extract_panels_text(aws)
 
 
 def parse_arguments() -> argparse.Namespace:

@@ -1,10 +1,12 @@
+import io
 import os
 from PIL import Image
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4, portrait
 from reportlab.lib.utils import ImageReader
 
-from utils.path import GENERATED_PAGE_DIR, GENERATED_PANELS_DIR
+from helpers.path_helper import GENERATED_PAGE_DIR, GENERATED_PANELS_DIR
+from helpers.aws_helper import load_images_from_s3, get_s3_connection, S3_BUCKET
 
 
 PANEL_WIDTH_MM = 91
@@ -14,8 +16,7 @@ PANEL_HEIGHT_PX = 408
 SPACING = 10
 
 
-def create_pdf(
-    aws: bool = False,
+def create_pdf_demo(
     input_path: str = GENERATED_PANELS_DIR,
     output_pdf: str = f"{GENERATED_PAGE_DIR}/result.pdf",
 ):
@@ -30,15 +31,27 @@ def create_pdf(
     c.save()
 
 
+def create_pdf(
+    input_path: str = GENERATED_PANELS_DIR,
+    output_pdf: str = f"{GENERATED_PAGE_DIR}/result.pdf",
+):
+    panels = load_images_from_s3(input_path)
+
+    pagesize = portrait(A4)
+
+    buffer = io.BytesIO()
+
+    c = canvas.Canvas(buffer, pagesize=pagesize)
+
+    write_image_in_pdf(panels, pagesize, c)
+
+    buffer.seek(0)
+
+    s3 = get_s3_connection()
+    s3.upload_fileobj(buffer, S3_BUCKET, f"{output_pdf}/result.pdf")
+
+
 def get_panels_from_local(dir_path: str) -> list:
-    return [
-        Image.open(os.path.join(dir_path, f))
-        for f in os.listdir(dir_path)
-        if os.path.isfile(os.path.join(dir_path, f))
-    ]
-
-
-def get_panels_from_s3(dir_path: str) -> list:
     return [
         Image.open(os.path.join(dir_path, f))
         for f in os.listdir(dir_path)
@@ -66,7 +79,3 @@ def write_image_in_pdf(panels: list, pagesize, c: canvas.Canvas, columns: int = 
         except Exception as e:
             print(str(e))
             continue
-
-
-def demo():
-    create_pdf()

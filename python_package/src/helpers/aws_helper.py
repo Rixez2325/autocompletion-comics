@@ -61,7 +61,7 @@ def load_pdf_from_s3(folder_prefix: str, bucket_name: str = S3_BUCKET) -> list:
     ]
 
 
-def load_image_from_s3(folder_prefix: str, bucket_name: str = S3_BUCKET) -> list:
+def load_images_from_s3(folder_prefix: str, bucket_name: str = S3_BUCKET) -> list:
     return [
         Image.open(BytesIO(image_data)).show()
         for image_data in load_file_from_s3(folder_prefix)
@@ -75,16 +75,33 @@ def load_json_from_s3(folder_prefix: str, bucket_name: str = S3_BUCKET) -> list:
 def save_objects_to_s3(objects: list, folder_prefix: str, bucket_name: str = S3_BUCKET):
     s3_client = boto3.client("s3")
     responses = {}
-    for object_name, object_content in objects.items():
-        # Combine the folder prefix with the object name to get the S3 key (full path)
-        s3_key = folder_prefix + object_name
 
-        # Use 'put_object' to upload the object content to the S3 bucket with the specified key
-        response = s3_client.put_object(
-            Bucket=bucket_name, Key=s3_key, Body=object_content
-        )
-
-        # Store the response for each object upload
-        responses[object_name] = response
+    for i, object in enumerate(objects):
+        s3_key = f"{folder_prefix}/result_{i}"
+        response = s3_client.put_object(Bucket=bucket_name, Key=s3_key, Body=object)
+        responses[s3_key] = response
 
     return responses
+
+
+def save_images_to_s3(
+    pillow_images: list, folder_prefix: str, bucket_name: str = S3_BUCKET
+):
+    s3_client = boto3.client("s3")
+    for index, pillow_image in enumerate(pillow_images):
+        with BytesIO() as buffer:
+            pillow_image.save(buffer, format="PNG")
+            image_data = buffer.getvalue()
+
+        image_key = f"{folder_prefix}image_{index}.png"
+
+        s3_client.put_object(Bucket=bucket_name, Key=image_key, Body=image_data)
+
+
+def save_json_to_s3(json_objects, folder_prefix: str, bucket_name: str = S3_BUCKET):
+    s3_client = boto3.client("s3")
+
+    for index, json_data in enumerate(json_objects):
+        json_key = f"{folder_prefix}data_{index}.json"
+        json_content = json.dumps(json_data)
+        s3_client.put_object(Bucket=bucket_name, Key=json_key, Body=json_content)

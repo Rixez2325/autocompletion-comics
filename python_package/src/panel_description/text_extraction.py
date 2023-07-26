@@ -6,15 +6,15 @@ from PIL import Image, ImageDraw
 from mypy_boto3_textract.client import TextractClient
 from mypy_boto3_s3.service_resource import S3ServiceResource
 
-from utils.aws import (
+from helpers.aws_helper import (
     get_s3_connection,
     get_textract_client,
-    list_s3_folder,
-    save_objects_to_s3,
+    load_images_from_s3,
+    save_json_to_s3,
     write_in_s3,
     S3_BUCKET,
 )
-from utils.path import PANELS_DIR, PANELS_TEXT_DIR
+from helpers.path_helper import PANELS_DIR, PANELS_TEXT_DIR, load_images_from_local
 
 
 MINIMUM_CONFIDENCE = 50
@@ -25,7 +25,6 @@ S3_DEMO_FILE = "samples/one_picture.PNG"
 S3_DEMO_OUTPUT = "samples/output.json"
 
 
-# TMP
 def demo():
     _, textract_client = init_aws_instance()
     for panel in os.listdir(PANELS_DIR):
@@ -44,24 +43,12 @@ def demo():
         demo_show_result(ordered_bubbles, words, panel_full_path)
 
 
-# TMP
-# Get the document from S3
-def get_original_image_from_s3(s3_connection: S3ServiceResource) -> Image:
-    s3_object = s3_connection.Object(S3_BUCKET, S3_DEMO_FILE)
-    s3_response = s3_object.get()
-
-    stream = io.BytesIO(s3_response["Body"].read())
-    image = Image.open(stream)
-
-    return image
-
-
-# TMP
+# DEMO
 def get_original_image_from_local(file_name: str) -> Image:
     return Image.open(file_name)
 
 
-# TMP
+# DEMO
 def demo_show_result(bubbles: list[dict], words: list[dict], file: str):
     image = get_original_image_from_local(file)
     # image = get_original_image_from_s3(s3_connection)
@@ -72,7 +59,7 @@ def demo_show_result(bubbles: list[dict], words: list[dict], file: str):
     # write_result_in_s3(merged_lines, s3_connection)
 
 
-# TMP
+# DEMO
 def display_bubbles(
     image: Image, blocks: list[dict], width: int, height: int, color: str
 ):
@@ -101,23 +88,25 @@ def display_bubbles(
     return image
 
 
-def extract_panels_text_from_local(
+def extract_panels_text(
     aws: bool = False,
     input_directory: str = PANELS_DIR,
     output_directory: str = PANELS_TEXT_DIR,
 ):
     if aws:
-        panels = list_s3_folder(input_directory)
+        panels = load_images_from_s3(input_directory)
     else:
-        panels = [f"{input_directory}/{pdf}" for pdf in os.listdir(input_directory)]
+        panels = load_images_from_local(input_directory)
+
     _, textract_client = init_aws_instance()
-    for panel in panels:
-        panel_path = f"{input_directory}/{panel}"
-        bubbles = extract_bubles_local(textract_client, panel_path)
+
+    for i, panel in enumerate(panels):
+        print(panel)
+        bubbles = extract_bubles(textract_client, panel)
         if aws:
-            save_objects_to_s3(bubbles, output_directory)
+            save_json_to_s3(bubbles, output_directory)
         else:
-            result_path = f"{output_directory}/{panel}_text.json"
+            result_path = f"{output_directory}/{panel}_{i}_text.json"
             write_result_localy(bubbles, result_path)
 
 
@@ -133,6 +122,13 @@ def get_request_document_througt_local_file(
 ) -> dict[str, bytes]:
     with open(file_full_path, "rb") as image_file:
         return {"Bytes": image_file.read()}
+
+
+def pillow_image_to_bytes(image) -> dict[str, bytes]:
+    byte_stream = io.BytesIO()
+    image.save(byte_stream, format="PNG")
+    bytes_data = byte_stream.getvalue()
+    return {"Bytes": bytes_data}
 
 
 def get_request_document_througt_s3(bucket: str, document: str) -> dict[str, str]:
@@ -233,8 +229,8 @@ def write_result_localy(bubbles: list[dict], output_path: str):
         json.dump(bubbles, outfile)
 
 
-def extract_bubles_local(textract_client: TextractClient, panel_path: str):
-    request_document = get_request_document_througt_local_file(panel_path)
+def extract_bubles(textract_client: TextractClient, panel):
+    request_document = pillow_image_to_bytes(panel)
     blocks = textract_api_request(textract_client, request_document)
     lines = get_lines(blocks)
     bubbles = merge_lines(lines)

@@ -3,12 +3,46 @@ import os
 import json
 from dotenv import load_dotenv
 from textwrap import dedent
-from utils.path import GENERATED_PROMPS_DIR, PANELS_TEXT_DIR
+from helpers.path_helper import GENERATED_PROMPS_DIR, PANELS_TEXT_DIR
+from helpers.aws_helper import (
+    S3_BUCKET,
+    load_json_from_s3,
+    save_json_to_s3,
+    get_s3_connection,
+)
 
 GPT_MODEL = "gpt-3.5-turbo"
 
 load_dotenv("./api_key.env")
 openai.api_key = os.getenv("OPENAI_API_KEY")
+
+
+def gpt_demo():
+    demo_description = [
+        {
+            "characters": ["batman", "superman"],
+            "visual_context": "on a rooof, city in background, nightsky",
+            "text": ["I'm the boss", "No I am !"],
+        },
+        {
+            "characters": ["batman", "superman"],
+            "visual_context": "on the streets",
+            "text": ["You dead bro"],
+        },
+    ]
+
+    generated_prompts = ask_gpt(demo_description)
+
+    print(generated_prompts)
+    output_path = f"{GENERATED_PROMPS_DIR}/promps.json"
+    with open(output_path, "w") as outfile:
+        json.dump(generated_prompts, outfile)
+
+
+def generate_prompts():
+    previous_descriptions = get_previous_descriptions()
+    generated_prompts = ask_gpt(previous_descriptions)
+    save_json_to_s3(generated_prompts, GENERATED_PROMPS_DIR)
 
 
 def ask_gpt(
@@ -83,16 +117,10 @@ def set_message(
     ]
 
 
-def save_promps(generated_prompts: list[dict]):
-    output_path = f"{GENERATED_PROMPS_DIR}/promps.json"
-    with open(output_path, "w") as outfile:
-        json.dump(generated_prompts, outfile)
-
-
 def get_previous_descriptions():
     descriptions = []
-    previous_panels_text = os.listdir(PANELS_TEXT_DIR)
-    for panel_text_file in previous_panels_text:  # TODO zip
+    previous_panels_text = load_json_from_s3(PANELS_TEXT_DIR)
+    for panel_text_file in previous_panels_text:
         current_description = {
             "characters": [
                 "batman",
@@ -109,37 +137,6 @@ def get_previous_descriptions():
     return descriptions
 
 
-def get_panels_text(panel_text_file: str, current_description: dict):
-    with open(f"{PANELS_TEXT_DIR}/{panel_text_file}", "r") as f:
-        panel_text = json.load(f)
-        for text in panel_text:
-            current_description["text"].append(text["Text"])
-
-
-def generate_prompts():
-    previous_descriptions = get_previous_descriptions()
-    generated_prompts = ask_gpt(previous_descriptions)
-    save_promps(generated_prompts)
-
-
-def demo():
-    demo_description = [
-        {
-            "characters": ["batman", "superman"],
-            "visual_context": "on a rooof, city in background, nightsky",
-            "text": ["I'm the boss", "No I am !"],
-        },
-        {
-            "characters": ["batman", "superman"],
-            "visual_context": "on the streets",
-            "text": ["You dead bro"],
-        },
-    ]
-
-    generated_prompts = ask_gpt(demo_description)
-
-    print(generated_prompts)
-
-
-# demo()
-get_previous_descriptions()
+def get_panels_text(panel_text: str, current_description: dict):
+    for text in panel_text:
+        current_description["text"].append(text["Text"])

@@ -13,7 +13,7 @@ def main(aws: bool = False):
             cut_pages()
     else:
         cut_pdf(aws)
-        cut_pages(aws)
+        # cut_pages(aws)
 
 
 def parse_arguments() -> argparse.Namespace:

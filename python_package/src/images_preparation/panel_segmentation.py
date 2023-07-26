@@ -4,8 +4,8 @@ import numpy as np
 from scipy import ndimage
 from skimage.measure import label, regionprops
 from images_preparation.utils import save_images_localy
-from utils.path import COMICS_PAGES_DIR, PANELS_DIR
-from utils.aws import list_s3_folder, save_objects_to_s3
+from helpers.path_helper import COMICS_PAGES_DIR, PANELS_DIR, load_images_from_local
+from helpers.aws_helper import load_images_from_s3, save_images_to_s3
 
 IMAGE_TYPE = "_##_panel_"
 
@@ -16,23 +16,24 @@ def cut_pages(
     output_directory: str = PANELS_DIR,
 ):
     if aws:
-        pages = list_s3_folder(input_directory)
+        pages = load_images_from_s3(input_directory)
     else:
-        pages = [f"{input_directory}/{page}" for page in os.listdir(input_directory)]
-    for page in pages:
-        panels = process_page(f"{input_directory}/{page}")
+        pages = load_images_from_local(input_directory)
+
+    for i, page in enumerate(pages):
+        panels = process_page(page)
         if aws:
-            save_objects_to_s3(panels, output_directory)
+            save_images_to_s3(panels, output_directory)
         else:
-            save_images_localy(panels, output_directory, page[:-4], IMAGE_TYPE)
+            save_images_localy(panels, output_directory, f"pdf_{i}", IMAGE_TYPE)
 
 
-def process_page(image_path: str) -> list[np.ndarray]:
-    src_img = cv2.imread(image_path)
-    edges_img = apply_canny_edge_detection(src_img)
+def process_page(image) -> list[np.ndarray]:
+    cv2_img = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)  # cv2.imread(image)
+    edges_img = apply_canny_edge_detection(cv2_img)
     regions = extract_regions(edges_img)
-    panels_bbox = refine_regions_into_panels(regions, src_img.shape)
-    panels = cut_panels_from_source(src_img, panels_bbox)
+    panels_bbox = refine_regions_into_panels(regions, cv2_img.shape)
+    panels = cut_panels_from_source(cv2_img, panels_bbox)
 
     return panels
 
