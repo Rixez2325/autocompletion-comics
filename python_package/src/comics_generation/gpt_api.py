@@ -116,7 +116,7 @@ def get_panels_text(panel_text_file: str, current_description: dict):
             current_description["text"].append(text["Text"])
 
 
-def generate_prompts(input_dir: str, output_dir: str):
+def generate_prompts():
     previous_descriptions = get_previous_descriptions()
     generated_prompts = ask_gpt(previous_descriptions)
     save_promps(generated_prompts)

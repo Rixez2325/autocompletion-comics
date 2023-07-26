@@ -5,7 +5,7 @@ import numpy as np
 DEFAULT_FORMAT = "png"
 
 
-def save_images(
+def save_images_localy(
     images: list[np.ndarray],
     output_directory: str,
     document_title: str,

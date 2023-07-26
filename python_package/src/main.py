@@ -9,11 +9,13 @@ def main():
     args = parse_arguments()
 
     if args.aws:
-        pass
+        images_preparation(args.aws)
+        panel_description(args.aws)
+        comics_generation(False, args.aws)
     elif args.local:
         images_preparation()
         panel_description()
-        comics_generation()
+        comics_generation(args.local, False)
     else:
         return "Wrong arguments"
 

@@ -3,19 +3,28 @@ import os
 import numpy as np
 from scipy import ndimage
 from skimage.measure import label, regionprops
-from images_preparation.utils import save_images
+from images_preparation.utils import save_images_localy
 from utils.path import COMICS_PAGES_DIR, PANELS_DIR
+from utils.aws import list_s3_folder, save_objects_to_s3
 
 IMAGE_TYPE = "_##_panel_"
 
 
 def cut_pages(
-    input_directory: str = COMICS_PAGES_DIR, output_directory: str = PANELS_DIR
+    aws: bool = False,
+    input_directory: str = COMICS_PAGES_DIR,
+    output_directory: str = PANELS_DIR,
 ):
-    pages = os.listdir(input_directory)
+    if aws:
+        pages = list_s3_folder(input_directory)
+    else:
+        pages = [f"{input_directory}/{page}" for page in os.listdir(input_directory)]
     for page in pages:
         panels = process_page(f"{input_directory}/{page}")
-        save_images(panels, output_directory, page[:-4], IMAGE_TYPE)
+        if aws:
+            save_objects_to_s3(panels, output_directory)
+        else:
+            save_images_localy(panels, output_directory, page[:-4], IMAGE_TYPE)
 
 
 def process_page(image_path: str) -> list[np.ndarray]:

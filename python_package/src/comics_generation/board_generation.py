@@ -15,21 +15,22 @@ SPACING = 10
 
 
 def create_pdf(
-    generated_panels_path: str = GENERATED_PANELS_DIR,
+    aws: bool = False,
+    input_path: str = GENERATED_PANELS_DIR,
     output_pdf: str = f"{GENERATED_PAGE_DIR}/result.pdf",
 ):
-    panels = get_panels(generated_panels_path)
+    panels = get_panels_from_local(input_path)
 
     pagesize = portrait(A4)
 
     c = canvas.Canvas(output_pdf, pagesize=pagesize)
 
-    write_image(panels, pagesize, c)
+    write_image_in_pdf(panels, pagesize, c)
 
     c.save()
 
 
-def get_panels(dir_path: str) -> list:
+def get_panels_from_local(dir_path: str) -> list:
     return [
         Image.open(os.path.join(dir_path, f))
         for f in os.listdir(dir_path)
@@ -37,7 +38,15 @@ def get_panels(dir_path: str) -> list:
     ]
 
 
-def write_image(panels: list, pagesize, c: canvas.Canvas, columns: int = 2):
+def get_panels_from_s3(dir_path: str) -> list:
+    return [
+        Image.open(os.path.join(dir_path, f))
+        for f in os.listdir(dir_path)
+        if os.path.isfile(os.path.join(dir_path, f))
+    ]
+
+
+def write_image_in_pdf(panels: list, pagesize, c: canvas.Canvas, columns: int = 2):
     for i, img in enumerate(panels):
         img_reader = ImageReader(img)
 

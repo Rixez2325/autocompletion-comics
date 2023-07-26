@@ -4,7 +4,7 @@ from comics_generation.comic_diffusion import demo as diffusion_deom, generate_i
 from comics_generation.board_generation import create_pdf
 
 
-def main():
+def main(aws: bool = False):
     args = parse_arguments()
 
     if args.demo:
@@ -15,9 +15,9 @@ def main():
         if args.process_pages:
             create_pdf()
     else:
-        generate_prompts()
-        generate_images()
-        create_pdf()
+        generate_prompts(aws)
+        generate_images(aws)
+        create_pdf(aws)
 
 
 def parse_arguments() -> argparse.Namespace:

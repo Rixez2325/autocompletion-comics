@@ -2,18 +2,24 @@ import os
 import io
 import json
 from PIL import Image, ImageDraw
-from utils import aws as aws
 
 from mypy_boto3_textract.client import TextractClient
 from mypy_boto3_s3.service_resource import S3ServiceResource
 
+from utils.aws import (
+    get_s3_connection,
+    get_textract_client,
+    list_s3_folder,
+    save_objects_to_s3,
+    write_in_s3,
+    S3_BUCKET,
+)
 from utils.path import PANELS_DIR, PANELS_TEXT_DIR
 
 
 MINIMUM_CONFIDENCE = 50
 THRESHOLD = 0.1
 
-S3_BUCKET = "autocompletion-comics-buckets"
 
 S3_DEMO_FILE = "samples/one_picture.PNG"
 S3_DEMO_OUTPUT = "samples/output.json"
@@ -95,14 +101,33 @@ def display_bubbles(
     return image
 
 
+def extract_panels_text_from_local(
+    aws: bool = False,
+    input_directory: str = PANELS_DIR,
+    output_directory: str = PANELS_TEXT_DIR,
+):
+    if aws:
+        panels = list_s3_folder(input_directory)
+    else:
+        panels = [f"{input_directory}/{pdf}" for pdf in os.listdir(input_directory)]
+    _, textract_client = init_aws_instance()
+    for panel in panels:
+        panel_path = f"{input_directory}/{panel}"
+        bubbles = extract_bubles_local(textract_client, panel_path)
+        if aws:
+            save_objects_to_s3(bubbles, output_directory)
+        else:
+            result_path = f"{output_directory}/{panel}_text.json"
+            write_result_localy(bubbles, result_path)
+
+
 def init_aws_instance() -> tuple[S3ServiceResource, TextractClient]:
-    s3_connection = aws.get_s3_connection()
-    textract_client = aws.get_textract_client()
+    s3_connection = get_s3_connection()
+    textract_client = get_textract_client()
 
     return s3_connection, textract_client
 
 
-# TODO check for exception
 def get_request_document_througt_local_file(
     file_full_path: str,
 ) -> dict[str, bytes]:
@@ -110,12 +135,10 @@ def get_request_document_througt_local_file(
         return {"Bytes": image_file.read()}
 
 
-# TODO check for exception
 def get_request_document_througt_s3(bucket: str, document: str) -> dict[str, str]:
     return {"S3Object": {"Bucket": bucket, "Name": document}}
 
 
-# TODO check for exception
 def textract_api_request(textract_client: TextractClient, document: dict) -> list[dict]:
     response = textract_client.detect_document_text(Document=document)
     return response["Blocks"]
@@ -197,7 +220,7 @@ def sort_bubbles(merged_lines: list[dict]) -> list[dict]:
 # TODO dynamic definition of object name
 def write_result_in_s3(merged_lines: list[dict], s3_connection: S3ServiceResource):
     json_file = json.dumps(merged_lines).encode("UTF-8")
-    aws.write_in_s3(json_file, s3_connection, S3_BUCKET, S3_DEMO_OUTPUT)
+    write_in_s3(json_file, s3_connection, S3_BUCKET, S3_DEMO_OUTPUT)
 
 
 def write_result_in_s3_old(bubbles: list[dict], s3_connection: S3ServiceResource):
@@ -208,18 +231,6 @@ def write_result_in_s3_old(bubbles: list[dict], s3_connection: S3ServiceResource
 def write_result_localy(bubbles: list[dict], output_path: str):
     with open(output_path, "w") as outfile:
         json.dump(bubbles, outfile)
-
-
-def extract_panels_text_from_local(
-    input_directory: str = PANELS_DIR, output_directory: str = PANELS_TEXT_DIR
-):
-    panels = os.listdir(input_directory)
-    _, textract_client = init_aws_instance()
-    for panel in panels:
-        panel_path = f"{input_directory}/{panel}"
-        bubbles = extract_bubles_local(textract_client, panel_path)
-        result_path = f"{output_directory}/{panel}_text.json"
-        write_result_localy(bubbles, result_path)
 
 
 def extract_bubles_local(textract_client: TextractClient, panel_path: str):

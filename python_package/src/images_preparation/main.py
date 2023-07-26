@@ -3,7 +3,7 @@ from images_preparation.pdf_preparations import cut_pdf
 from images_preparation.panel_segmentation import cut_pages
 
 
-def main():
+def main(aws: bool = False):
     args = parse_arguments()
 
     if args.demo:
@@ -12,8 +12,8 @@ def main():
         if args.process_pages:
             cut_pages()
     else:
-        cut_pdf()
-        cut_pages()
+        cut_pdf(aws)
+        cut_pages(aws)
 
 
 def parse_arguments() -> argparse.Namespace:

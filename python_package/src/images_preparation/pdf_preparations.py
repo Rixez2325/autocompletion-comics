@@ -2,22 +2,33 @@ import os
 import fitz
 from fitz import Page, Document, Pixmap, Matrix, Rect
 import numpy as np
-from images_preparation.utils import save_images
-from utils.path import PDF_DIR, COMICS_PAGES_DIR
+from images_preparation.utils import save_images_localy
+from utils.path import PDF_DIR, COMICS_PAGES_DIR, load_pdf_from_local
+from utils.aws import load_pdf_from_s3, save_objects_to_s3
 
 OUTPUT_WIDTH = 600
 IMAGE_TYPE = "_##_page_"
 
 
-def cut_pdf(input_directory: str = PDF_DIR, output_directory: str = COMICS_PAGES_DIR):
-    comics = os.listdir(input_directory)
+def cut_pdf(
+    aws: bool = False,
+    input_directory: str = PDF_DIR,
+    output_directory: str = COMICS_PAGES_DIR,
+):
+    if aws:
+        comics = load_pdf_from_s3(input_directory)
+    else:
+        comics = load_pdf_from_local(input_directory)
+
     for comic in comics:
-        comic_pages = process_pdf(f"{input_directory}/{comic}")
-        save_images(comic_pages, output_directory, comic[:-4], IMAGE_TYPE)
+        comic_pages = process_pdf(comic)
+        if aws:
+            save_objects_to_s3(comic_pages, output_directory)
+        else:
+            save_images_localy(comic_pages, output_directory, comic[:-4], IMAGE_TYPE)
 
 
-def process_pdf(file_path: str) -> list[np.ndarray]:
-    pdf: Document = fitz.open(file_path)
+def process_pdf(pdf: Document) -> list[np.ndarray]:
     pages = split_document(pdf)
     return to_ndarray(pages)
 

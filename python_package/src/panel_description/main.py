@@ -2,15 +2,13 @@ import argparse
 from panel_description.text_extraction import extract_panels_text_from_local, demo
 
 
-def main():
+def main(aws: bool = False):
     args = parse_arguments()
 
     if args.demo:
         demo()
-    elif args.aws:
-        pass  # TODO extract_bubbles_from_s3
     else:
-        extract_panels_text_from_local()
+        extract_panels_text_from_local(aws)
 
 
 def parse_arguments() -> argparse.Namespace:
