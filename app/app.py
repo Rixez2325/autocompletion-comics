@@ -1,3 +1,4 @@
+import time
 from flask import Flask, render_template, request
 from werkzeug.utils import secure_filename
 import os
@@ -16,6 +17,7 @@ s3 = boto3.client("s3")
 
 @app.route("/", methods=["GET", "POST"])
 def upload_file():
+    run_ec2_process()
     if request.method == "POST":
         if "file" not in request.files:
             return "No file part in the form"
@@ -35,6 +37,29 @@ def upload_file():
       <input type="submit" value="Upload">
     </form>
     """
+
+
+def run_ec2_process():
+    ssm = boto3.client("ssm", region_name="us-west-1")  # replace with your region
+
+    response = ssm.send_command(
+        InstanceIds=["i-0abcdef1234567890"],  # replace with your instance ID
+        DocumentName="AWS-RunShellScript",
+        Parameters={
+            "commands": [
+                # "python /home/ec2-user/autocompletion-comics/python_package/src/main.py --aws"
+                "python /home/ec2-user/test.py"
+            ]
+        },
+    )
+
+    command_id = response["Command"]["CommandId"]
+
+    # Check command status
+    output = ssm.get_command_invocation(
+        CommandId=command_id,
+        InstanceId="i-0b88b6d191f445ba1",  # replace with your instance ID
+    )
 
 
 def check_for_new_files():

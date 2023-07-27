@@ -5,7 +5,7 @@ diffusers==0.16.1
 openai==0.27.8
 opencv-python==4.7.0.72
 PyMuPDF==1.21.1
-python-dotenv==1.0.0
+python-dotenv==0.21.1
 reportlab==4.0.4
 scikit-image==0.20.0 
 transformers==4.29.2

@@ -9,8 +9,8 @@ def main():
     args = parse_arguments()
 
     if args.aws:
-        # images_preparation(args.aws)
-        # panel_description(args.aws)
+        images_preparation(args.aws)
+        panel_description(args.aws)
         comics_generation(args.aws)
     elif args.local:
         images_preparation()
