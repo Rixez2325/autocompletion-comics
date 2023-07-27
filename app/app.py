@@ -6,6 +6,7 @@ import boto3
 
 S3_BUCKET = "autocompletion-comics-buckets"
 PDF_DIR = "datasets/pdf"
+RESULT_DIR = "datasets/generated_page"
 
 app = Flask(__name__)
 app.config["UPLOAD_FOLDER"] = "uploads/"  # change to your preferred upload directory
@@ -23,9 +24,8 @@ def upload_file():
             return "No selected file"
         if file and file.filename.endswith(".pdf"):
             filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
             s3.upload_fileobj(file, S3_BUCKET, f"{PDF_DIR}/{filename}")
-            return "File uploaded successfully"
+            return "File uploaded successfully, processing in progress ..."
     return """
     <!doctype html>
     <title>comics-generator</title>
@@ -35,6 +35,22 @@ def upload_file():
       <input type="submit" value="Upload">
     </form>
     """
+
+
+def check_for_new_files():
+    current_files = set()
+
+    while True:
+        response = s3.list_objects_v2(Bucket=S3_BUCKET, Prefix=RESULT_DIR)
+
+        if "Contents" in response:
+            new_files = set(obj["Key"] for obj in response["Contents"])
+            if new_files != current_files:
+                print("New file detected!")
+                current_files = new_files
+                break  # remove this if you want to keep checking for new files
+
+        time.sleep(10)
 
 
 if __name__ == "__main__":
