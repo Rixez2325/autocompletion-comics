@@ -38,12 +38,106 @@ def upload_file():
             return "File uploaded successfully, processing in progress ..."
     return """
     <!doctype html>
-    <title>comics-generator</title>
-    <h1>Upload a PDF File</h1>
-    <form method="POST" enctype="multipart/form-data">
-      <input type="file" name="file">
-      <input type="submit" value="Upload">
-    </form>
+    <html>
+    <head>
+        <title>comics-generator</title>
+        <style>
+            body {
+                font-family: 'Comic Sans MS', sans-serif;
+                background-image: url("https://example.com/path/to/comic/background.png");
+                background-repeat: repeat;
+                padding: 50px;
+            }
+            h1 {
+                color: #444;
+                text-align: center;
+            }
+            form {
+                background: rgba(255, 255, 255, 0.8);
+                padding: 20px;
+                border-radius: 10px;
+                box-shadow: 0 0 10px rgba(0,0,0,0.1);
+                text-align: center;
+            }
+            .drop_zone {
+                border: 2px dashed #aaa;
+                border-radius: 10px;
+                padding: 30px;
+                text-align: center;
+                margin: 20px 0;
+                cursor: pointer;
+                color: #aaa;
+            }
+            .drop_zone.dragover {
+                border-color: #008CBA;
+                color: #008CBA;
+            }
+            .custom-file-upload {
+                display: inline-block;
+                padding: 6px 12px;
+                cursor: pointer;
+                margin-top: 20px;
+                border-radius: 4px;
+                background-color: #008CBA; 
+                color: white; 
+            }
+            input[type=submit] {
+                background-color: #4CAF50; 
+                border: none;
+                color: white;
+                padding: 15px 32px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 16px;
+                margin: 20px 2px;
+                cursor: pointer;
+                border-radius: 4px;
+                transition: background-color 0.3s;
+            }
+            #file {
+                display: none;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Upload a PDF File</h1>
+        <form method="POST" enctype="multipart/form-data">
+            <div id="drop_zone" class="drop_zone">Drag and drop a file<br>
+                
+            </div>
+            <label for="file" class="custom-file-upload">update from computer</label>
+            <input id="file" type="file" name="file">
+            <br>
+            <input type="submit" value="Upload">
+        </form>
+        <script>
+            const dropZone = document.getElementById('drop_zone');
+            const fileInput = document.getElementById('file');
+
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('dragover');
+            });
+
+            dropZone.addEventListener('dragleave', (e) => {
+                dropZone.classList.remove('dragover');
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('dragover');
+                fileInput.files = e.dataTransfer.files;
+                dropZone.innerText = `File selected: ${fileInput.files[0].name}`;
+            });
+
+            fileInput.onchange = function () {
+                dropZone.innerText = `File selected: ${this.files[0].name}`;
+            };
+        </script>
+    </body>
+    </html>
+
     """
 
 
