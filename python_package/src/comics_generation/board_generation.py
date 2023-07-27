@@ -4,6 +4,7 @@ from PIL import Image
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4, portrait
 from reportlab.lib.utils import ImageReader
+from typing import List
 
 from helpers.path_helper import GENERATED_PAGE_DIR, GENERATED_PANELS_DIR
 from helpers.aws_helper import (
@@ -55,7 +56,7 @@ def create_pdf(
     save_pdf_to_s3([buffer], output_path)
 
 
-def get_panels_from_local(dir_path: str) -> list:
+def get_panels_from_local(dir_path: str) -> List:
     return [
         Image.open(os.path.join(dir_path, f))
         for f in os.listdir(dir_path)

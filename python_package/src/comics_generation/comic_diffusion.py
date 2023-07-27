@@ -4,6 +4,7 @@ from diffusers import DiffusionPipeline
 from PIL.Image import Image
 from helpers.aws_helper import load_json_from_s3, save_images_to_s3
 from helpers.path_helper import GENERATED_PANELS_DIR, GENERATED_PROMPS_DIR
+from typing import Dict, List
 
 COMIC_DIFFUSION_REPOSITORY = "assets/Comic-Diffusion"
 ARTSTYLE = ", pepelarraz artstyle"
@@ -49,7 +50,7 @@ def format_prompt(
     num_images_per_prompt: int = 1,
     num_inference_steps: int = 50,
     guidance_scale: float = 7.5,
-) -> dict:
+) -> Dict:
     return {
         "prompt": prompt + ARTSTYLE,
         "height": height,
@@ -77,6 +78,6 @@ def init_pipeline(pretrained_model_name_or_path: str = COMIC_DIFFUSION_REPOSITOR
     )
 
 
-def get_prompts_from_s3() -> list:
+def get_prompts_from_s3() -> List:
     prompts_files = load_json_from_s3(GENERATED_PROMPS_DIR)
     return [file["prompt"] for file in prompts_files]

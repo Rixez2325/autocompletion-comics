@@ -2,7 +2,7 @@ import os
 import io
 import json
 from PIL import Image, ImageDraw
-
+from typing import Dict, List
 from mypy_boto3_textract.client import TextractClient
 from mypy_boto3_s3.service_resource import S3ServiceResource
 
@@ -118,28 +118,28 @@ def init_aws_instance() -> tuple[S3ServiceResource, TextractClient]:
 
 def get_request_document_througt_local_file(
     file_full_path: str,
-) -> dict[str, bytes]:
+) -> Dict[str, bytes]:
     with open(file_full_path, "rb") as image_file:
         return {"Bytes": image_file.read()}
 
 
-def pillow_image_to_bytes(image) -> dict[str, bytes]:
+def pillow_image_to_bytes(image) -> Dict[str, bytes]:
     byte_stream = io.BytesIO()
     image.save(byte_stream, format="PNG")
     bytes_data = byte_stream.getvalue()
     return {"Bytes": bytes_data}
 
 
-def get_request_document_througt_s3(bucket: str, document: str) -> dict[str, str]:
+def get_request_document_througt_s3(bucket: str, document: str) -> Dict[str, str]:
     return {"S3Object": {"Bucket": bucket, "Name": document}}
 
 
-def textract_api_request(textract_client: TextractClient, document: dict) -> list[dict]:
+def textract_api_request(textract_client: TextractClient, document: dict) -> List[dict]:
     response = textract_client.detect_document_text(Document=document)
     return response["Blocks"]
 
 
-def get_lines(blocks: list[dict]) -> list[dict]:
+def get_lines(blocks: list[dict]) -> List[dict]:
     return [
         {
             "Text": block["Text"],
@@ -151,7 +151,7 @@ def get_lines(blocks: list[dict]) -> list[dict]:
     ]
 
 
-def get_words(blocks: list[dict]) -> list[dict]:
+def get_words(blocks: list[dict]) -> List[dict]:
     return [
         {
             "Text": block["Text"],
@@ -181,7 +181,7 @@ def verticaly_close(bbox1: dict, bbox2: dict) -> bool:
     return y_dist - (bbox1["Height"] / 2 + bbox2["Height"] / 2) < THRESHOLD
 
 
-def merge_lines(lines: list[dict], threshold=THRESHOLD) -> list[dict]:
+def merge_lines(lines: list[dict], threshold=THRESHOLD) -> List[dict]:
     bubbles = []
     for line in lines:
         bbox1 = line["BoundingBox"]
@@ -208,7 +208,7 @@ def merge_lines(lines: list[dict], threshold=THRESHOLD) -> list[dict]:
     return bubbles
 
 
-def sort_bubbles(merged_lines: list[dict]) -> list[dict]:
+def sort_bubbles(merged_lines: list[dict]) -> List[dict]:
     return sorted(merged_lines, key=lambda line: line["BoundingBox"]["Left"])
 
 

@@ -3,7 +3,7 @@ import json
 from PIL import Image
 import fitz
 import boto3
-
+from typing import List
 from mypy_boto3_textract.client import TextractClient
 from mypy_boto3_s3.service_resource import S3ServiceResource, Object
 
@@ -30,7 +30,7 @@ def write_in_s3(
     s3_file.put(Body=binary_file)
 
 
-def list_s3_folder(folder_prefix: str, bucket_name: str = S3_BUCKET) -> list:
+def list_s3_folder(folder_prefix: str, bucket_name: str = S3_BUCKET) -> List:
     s3_client = boto3.client("s3")
     folder_response = s3_client.list_objects_v2(
         Bucket=bucket_name, Prefix=folder_prefix
@@ -40,7 +40,7 @@ def list_s3_folder(folder_prefix: str, bucket_name: str = S3_BUCKET) -> list:
     return file_list
 
 
-def load_file_from_s3_old(folder_prefix: str, bucket_name: str = S3_BUCKET) -> list:
+def load_file_from_s3_old(folder_prefix: str, bucket_name: str = S3_BUCKET) -> List:
     s3_client = boto3.client("s3")
 
     bucket_content = list_s3_folder(folder_prefix)
@@ -64,21 +64,21 @@ def load_obj_from_s3(file_key, bucket_name: str = S3_BUCKET):
     return file
 
 
-def load_pdf_from_s3(folder_prefix: str) -> list:
+def load_pdf_from_s3(folder_prefix: str) -> List:
     return [
         fitz.open(stream=BytesIO(load_obj_from_s3(pdf_data)))
         for pdf_data in list_s3_folder(folder_prefix)
     ]
 
 
-def load_images_from_s3(folder_prefix: str) -> list:
+def load_images_from_s3(folder_prefix: str) -> List:
     return [
         Image.open(BytesIO(load_obj_from_s3(image_data)))
         for image_data in list_s3_folder(folder_prefix)
     ]
 
 
-def load_json_from_s3(folder_prefix: str) -> list:
+def load_json_from_s3(folder_prefix: str) -> List:
     return [
         json.loads(load_obj_from_s3(json_str))
         for json_str in list_s3_folder(folder_prefix)

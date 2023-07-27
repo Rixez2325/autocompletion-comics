@@ -3,6 +3,7 @@ import os
 import json
 from dotenv import load_dotenv
 from textwrap import dedent
+from typing import List
 from helpers.path_helper import GENERATED_PROMPS_DIR, PANELS_TEXT_DIR
 from helpers.aws_helper import (
     S3_BUCKET,
@@ -48,20 +49,20 @@ def generate_prompts():
 def ask_gpt(
     previous_panels_description: list[dict],
     nb_panels_to_generate: int = 4,
-) -> list[dict]:
+) -> List[dict]:
     messages = set_message(nb_panels_to_generate, previous_panels_description)
     response = openai.ChatCompletion.create(model=GPT_MODEL, messages=messages)
     new_prompts = extract_panels_prompts(response)
     return new_prompts
 
 
-def extract_panels_prompts(response: dict) -> list[dict]:
+def extract_panels_prompts(response: dict) -> List[dict]:
     prompts_str = response["choices"][0]["message"]["content"]
     prompts_list = split_prompts_str(prompts_str)
     return prompts_list
 
 
-def split_prompts_str(prompts_str: str) -> list[dict]:
+def split_prompts_str(prompts_str: str) -> List[dict]:
     prompts = prompts_str.split("\n\n")
     result = []
     for prompt in prompts:

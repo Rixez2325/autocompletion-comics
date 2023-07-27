@@ -5,6 +5,7 @@ from scipy import ndimage
 from skimage.measure import label, regionprops
 from PIL import Image
 from images_preparation.utils import save_images_localy
+from typing import List
 from helpers.path_helper import COMICS_PAGES_DIR, PANELS_DIR, load_images_from_local
 from helpers.aws_helper import load_images_from_s3, save_images_to_s3
 
@@ -30,7 +31,7 @@ def cut_pages(
             save_images_localy(panels, output_directory, f"pdf_{i}", IMAGE_TYPE)
 
 
-def process_page(image) -> list[np.ndarray]:
+def process_page(image) -> List[np.ndarray]:
     cv2_img = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)  # cv2.imread(image)
     edges_img = apply_canny_edge_detection(cv2_img)
     regions = extract_regions(edges_img)
@@ -52,7 +53,7 @@ def apply_canny_edge_detection(src_img: np.ndarray) -> np.ndarray:
     return edges
 
 
-def extract_regions(edges_img: np.ndarray) -> list:
+def extract_regions(edges_img: np.ndarray) -> List:
     # Filling hole part surounded by white
     segmentation = ndimage.binary_fill_holes(edges_img).astype(np.uint8)
     # Labelling each white patch
@@ -69,7 +70,7 @@ def merge_bboxes(a: tuple, b: tuple) -> tuple:
     return (min(a[0], b[0]), min(a[1], b[1]), max(a[2], b[2]), max(a[3], b[3]))
 
 
-def refine_regions_into_panels(regions: list, img_shape: tuple) -> list[tuple]:
+def refine_regions_into_panels(regions: list, img_shape: tuple) -> List[tuple]:
     panels_bbox = []
     for region in regions:
         for i, panel in enumerate(panels_bbox):
@@ -82,7 +83,7 @@ def refine_regions_into_panels(regions: list, img_shape: tuple) -> list[tuple]:
     return remove_small_panels(panels_bbox, img_shape)
 
 
-def remove_small_panels(panels_bbox: list[tuple], img_shape: tuple) -> list[tuple]:
+def remove_small_panels(panels_bbox: list[tuple], img_shape: tuple) -> List[tuple]:
     for i, panel in reversed(list(enumerate(panels_bbox))):
         img_area = (panel[2] - panel[0]) * (panel[3] - panel[1])
         if img_area < 0.01 * img_shape[0] * img_shape[1]:
@@ -92,7 +93,7 @@ def remove_small_panels(panels_bbox: list[tuple], img_shape: tuple) -> list[tupl
 
 def cut_panels_from_source(
     src_img: np.ndarray, panels_bbox: list[tuple]
-) -> list[np.ndarray]:
+) -> List[np.ndarray]:
     panels = []
     for bbox in panels_bbox:
         panel = src_img[bbox[0] : bbox[2], bbox[1] : bbox[3]]
