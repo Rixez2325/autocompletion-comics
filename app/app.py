@@ -1,8 +1,7 @@
 import time
 from flask import Flask, render_template, request
 from werkzeug.utils import secure_filename
-import os
-import json
+from werkzeug.wrappers import Response
 import boto3
 
 S3_BUCKET = "autocompletion-comics-buckets"
@@ -93,7 +92,46 @@ def check_for_new_files():
         time.sleep(10)
 
 
+# Lambda handler function
+def lambda_handler(event, context):
+    with app.test_request_context(
+        path=event["path"], method=event["httpMethod"], headers=event["headers"]
+    ):
+        try:
+            rv = app.full_dispatch_request()
+
+            if rv.status_code == 302 and not rv.autocorrect_location_header:
+                rv.autocorrect_location_header = True
+
+            headers = dict(rv.headers)
+            body = rv.get_data()
+
+            if "Content-Type" not in headers:
+                headers["Content-Type"] = "text/plain"
+
+            return {
+                "statusCode": rv.status_code,
+                "headers": headers,
+                "body": body.decode("utf-8"),
+                "isBase64Encoded": False,
+            }
+
+        except Exception as e:
+            response = Response(
+                "An error occurred: %s\n" % str(e),
+                status=500,
+                headers={"Content-Type": "text/plain"},
+            )
+            headers = dict(response.headers)
+            body = response.get_data()
+
+            return {
+                "statusCode": response.status_code,
+                "headers": headers,
+                "body": body.decode("utf-8"),
+                "isBase64Encoded": False,
+            }
+
+
 if __name__ == "__main__":
-    if not os.path.exists("uploads/"):
-        os.makedirs("uploads/")
     app.run(debug=True)
