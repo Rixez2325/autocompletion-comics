@@ -18,5 +18,5 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     package_dir={"": "src"},
     install_requires=requirements,
-    python_requires=">=3.10",
+    # python_requires=">=3.10",
 )
