@@ -101,7 +101,6 @@ def extract_panels_text(
     _, textract_client = init_aws_instance()
 
     for i, panel in enumerate(panels):
-        print(panel)
         bubbles = extract_bubles(textract_client, panel)
         if aws:
             save_json_to_s3(bubbles, output_directory)

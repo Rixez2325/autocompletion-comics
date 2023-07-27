@@ -27,8 +27,8 @@ def diffusion_demo():
 def generate_images():
     pipeline = init_pipeline(COMIC_DIFFUSION_REPOSITORY)
     prompts = get_prompts_from_s3()
-    images = [generate_image(pipeline, prompt) for prompt in prompts]
-    save_images_to_s3(images, GENERATED_PANELS_DIR)
+    # images = [generate_image(pipeline, prompt) for prompt in prompts]
+    # save_images_to_s3(images, GENERATED_PANELS_DIR)
 
 
 def generate_image(pipeline: DiffusionPipeline, prompt: str) -> Image:
@@ -44,8 +44,8 @@ def generate_image(pipeline: DiffusionPipeline, prompt: str) -> Image:
 
 def format_prompt(
     prompt: str,
-    width: int = 280,
-    height: int = 408,
+    width: int = 368 * 2,
+    height: int = 544 * 2,
     num_images_per_prompt: int = 1,
     num_inference_steps: int = 50,
     guidance_scale: float = 7.5,
@@ -79,8 +79,4 @@ def init_pipeline(pretrained_model_name_or_path: str = COMIC_DIFFUSION_REPOSITOR
 
 def get_prompts_from_s3() -> list:
     prompts_files = load_json_from_s3(GENERATED_PROMPS_DIR)
-    prompts = []
-    for file in prompts_files:
-        for prompt in file:
-            prompts.append(prompt["prompt"])
-    return prompts
+    return [file["prompt"] for file in prompts_files]

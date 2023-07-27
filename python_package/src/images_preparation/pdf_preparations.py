@@ -1,5 +1,6 @@
 import fitz
 from fitz import Page, Document, Pixmap, Matrix, Rect
+from PIL import Image
 import numpy as np
 
 from images_preparation.utils import save_images_localy
@@ -24,6 +25,7 @@ def cut_pdf(
     for comic in comics:
         comic_pages = process_pdf(comic)
         if aws:
+            comic_pages = [Image.fromarray(page) for page in comic_pages]
             save_images_to_s3(comic_pages, output_directory)
         else:
             comic_title = comic.name.split("\\")[-1][:-4]

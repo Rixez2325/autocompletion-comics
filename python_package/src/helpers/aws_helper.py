@@ -35,18 +35,19 @@ def list_s3_folder(folder_prefix: str, bucket_name: str = S3_BUCKET) -> list:
     folder_response = s3_client.list_objects_v2(
         Bucket=bucket_name, Prefix=folder_prefix
     )
-    return folder_response["Contents"][1:]
+    file_list = [obj["Key"] for obj in folder_response["Contents"][1:]]
+    print(file_list)
+    return file_list
 
 
-def load_file_from_s3(folder_prefix: str, bucket_name: str = S3_BUCKET) -> list:
+def load_file_from_s3_old(folder_prefix: str, bucket_name: str = S3_BUCKET) -> list:
     s3_client = boto3.client("s3")
 
     bucket_content = list_s3_folder(folder_prefix)
 
     files_list = []
 
-    for file in bucket_content:
-        file_key = file["Key"]
+    for file_key in bucket_content:
         response = s3_client.get_object(Bucket=bucket_name, Key=file_key)
         file = response["Body"].read()
         files_list.append(file)
@@ -54,30 +55,42 @@ def load_file_from_s3(folder_prefix: str, bucket_name: str = S3_BUCKET) -> list:
     return files_list
 
 
-def load_pdf_from_s3(folder_prefix: str, bucket_name: str = S3_BUCKET) -> list:
+def load_obj_from_s3(file_key, bucket_name: str = S3_BUCKET):
+    s3_client = boto3.client("s3")
+
+    response = s3_client.get_object(Bucket=bucket_name, Key=file_key)
+    file = response["Body"].read()
+
+    return file
+
+
+def load_pdf_from_s3(folder_prefix: str) -> list:
     return [
-        fitz.open(stream=BytesIO(pdf_data))
-        for pdf_data in load_file_from_s3(folder_prefix)
+        fitz.open(stream=BytesIO(load_obj_from_s3(pdf_data)))
+        for pdf_data in list_s3_folder(folder_prefix)
     ]
 
 
-def load_images_from_s3(folder_prefix: str, bucket_name: str = S3_BUCKET) -> list:
+def load_images_from_s3(folder_prefix: str) -> list:
     return [
-        Image.open(BytesIO(image_data)).show()
-        for image_data in load_file_from_s3(folder_prefix)
+        Image.open(BytesIO(load_obj_from_s3(image_data)))
+        for image_data in list_s3_folder(folder_prefix)
     ]
 
 
-def load_json_from_s3(folder_prefix: str, bucket_name: str = S3_BUCKET) -> list:
-    return [json.loads(json_str) for json_str in load_file_from_s3(folder_prefix)]
+def load_json_from_s3(folder_prefix: str) -> list:
+    return [
+        json.loads(load_obj_from_s3(json_str))
+        for json_str in list_s3_folder(folder_prefix)
+    ]
 
 
-def save_objects_to_s3(objects: list, folder_prefix: str, bucket_name: str = S3_BUCKET):
+def save_pdf_to_s3(objects: list, folder_prefix: str, bucket_name: str = S3_BUCKET):
     s3_client = boto3.client("s3")
     responses = {}
 
     for i, object in enumerate(objects):
-        s3_key = f"{folder_prefix}/result_{i}"
+        s3_key = f"{folder_prefix}/result_{i}.pdf"
         response = s3_client.put_object(Bucket=bucket_name, Key=s3_key, Body=object)
         responses[s3_key] = response
 
@@ -93,7 +106,7 @@ def save_images_to_s3(
             pillow_image.save(buffer, format="PNG")
             image_data = buffer.getvalue()
 
-        image_key = f"{folder_prefix}image_{index}.png"
+        image_key = f"{folder_prefix}/image_{index}.png"
 
         s3_client.put_object(Bucket=bucket_name, Key=image_key, Body=image_data)
 
@@ -102,6 +115,6 @@ def save_json_to_s3(json_objects, folder_prefix: str, bucket_name: str = S3_BUCK
     s3_client = boto3.client("s3")
 
     for index, json_data in enumerate(json_objects):
-        json_key = f"{folder_prefix}data_{index}.json"
+        json_key = f"{folder_prefix}/data_{index}.json"
         json_content = json.dumps(json_data)
         s3_client.put_object(Bucket=bucket_name, Key=json_key, Body=json_content)

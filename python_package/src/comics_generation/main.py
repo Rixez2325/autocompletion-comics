@@ -5,19 +5,19 @@ from comics_generation.board_generation import create_pdf_demo, create_pdf
 
 
 def main(aws: bool = False):
-    args = parse_arguments()
+    if aws:
+        # generate_prompts()
+        generate_images()
+        create_pdf()
+    else:
+        args = parse_arguments()
 
-    if args.demo:
         if args.process_gpt:
             gpt_demo()
         if args.process_diffusion:
             diffusion_demo()
         if args.process_page:
             create_pdf_demo()
-    else:
-        generate_prompts()
-        generate_images()
-        create_pdf()
 
 
 def parse_arguments() -> argparse.Namespace:

@@ -130,13 +130,8 @@ def get_previous_descriptions():
             "text": [],
         }
 
-        get_panels_text(panel_text_file, current_description)
-
+        # get_panels_text(panel_text_file, current_description)
+        current_description["text"].append(panel_text_file["Text"])
         descriptions.append(current_description)
 
     return descriptions
-
-
-def get_panels_text(panel_text: str, current_description: dict):
-    for text in panel_text:
-        current_description["text"].append(text["Text"])

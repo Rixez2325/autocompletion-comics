@@ -3,6 +3,7 @@ import os
 import numpy as np
 from scipy import ndimage
 from skimage.measure import label, regionprops
+from PIL import Image
 from images_preparation.utils import save_images_localy
 from helpers.path_helper import COMICS_PAGES_DIR, PANELS_DIR, load_images_from_local
 from helpers.aws_helper import load_images_from_s3, save_images_to_s3
@@ -23,7 +24,8 @@ def cut_pages(
     for i, page in enumerate(pages):
         panels = process_page(page)
         if aws:
-            save_images_to_s3(panels, output_directory)
+            pages = [Image.fromarray((page)) for page in panels]
+            save_images_to_s3(pages, output_directory)
         else:
             save_images_localy(panels, output_directory, f"pdf_{i}", IMAGE_TYPE)
 
