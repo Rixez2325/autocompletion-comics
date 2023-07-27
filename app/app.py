@@ -40,10 +40,10 @@ def upload_file():
 
 
 def run_ec2_process():
-    ssm = boto3.client("ssm", region_name="us-west-1")  # replace with your region
+    ssm = boto3.client("ssm", region_name="eu-west-1c")  # replace with your region
 
     response = ssm.send_command(
-        InstanceIds=["i-0abcdef1234567890"],  # replace with your instance ID
+        InstanceIds=["i-0b88b6d191f445ba1"],  # replace with your instance ID
         DocumentName="AWS-RunShellScript",
         Parameters={
             "commands": [
