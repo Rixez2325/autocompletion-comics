@@ -2,21 +2,21 @@
 resource "aws_iam_role" "autocompletion_comics_ec2_role" {
   name = "autocompletion-comics-ec2-role"
 
-  assume_role_policy = <<EOF
-                        {
-                          "Version": "2012-10-17",
-                          "Statement": [
-                            {
-                              "Action": "sts:AssumeRole",
-                              "Principal": {
-                                "Service": "ec2.amazonaws.com"
-                              },
-                              "Effect": "Allow",
-                              "Sid": ""
-                            }
-                          ]
-                        }
-                        EOF
+  assume_role_policy = jsonencode(
+    {
+      "Version" : "2012-10-17",
+      "Statement" : [
+        {
+          "Action" : "sts:AssumeRole",
+          "Principal" : {
+            "Service" : "ec2.amazonaws.com"
+          },
+          "Effect" : "Allow",
+          "Sid" : ""
+        }
+      ]
+    }
+  )
 }
 
 resource "aws_iam_policy" "instance_connect" {
@@ -24,18 +24,18 @@ resource "aws_iam_policy" "instance_connect" {
   path        = "/"
   description = "Allows the ec2:InstanceConnect action"
 
-  policy = <<EOF
-  {
-    "Version": "2012-10-17",
-    "Statement": [
-      {
-        "Action": "ec2:InstanceConnect",
-        "Effect": "Allow",
-        "Resource": "*"
-      }
-    ]
-  }
-  EOF
+  policy = jsonencode(
+    {
+      "Version" : "2012-10-17",
+      "Statement" : [
+        {
+          "Action" : "ec2:InstanceConnect",
+          "Effect" : "Allow",
+          "Resource" : "*"
+        }
+      ]
+    }
+  )
 }
 
 resource "aws_iam_role_policy_attachment" "autocompletion_comics_role" {

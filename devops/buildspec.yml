@@ -1,0 +1,17 @@
+phases:
+  install:
+    runtime-versions:
+      python: 3.8
+    commands:
+      - echo Installing dependencies...
+      - apt-get install unzip -y
+      - curl -o terraform.zip https://releases.hashicorp.com/terraform/0.12.24/terraform_0.12.24_linux_amd64.zip
+      - unzip terraform.zip
+      - mv terraform /usr/local/bin/
+      - terraform init
+
+  build:
+    commands:
+      - echo Build started on `date`
+      - terraform plan
+      - terraform apply -auto-approve
