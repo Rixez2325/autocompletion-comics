@@ -64,7 +64,7 @@ def get_panels_from_local(dir_path) -> List:
     ]
 
 
-def write_image_in_pdf(panels: list, pagesize, c: canvas.Canvas, columns: int = 2):
+def write_image_in_pdf(panels: List, pagesize, c: canvas.Canvas, columns: int = 2):
     for i, img in enumerate(panels):
         img_reader = ImageReader(img)
 

@@ -3,7 +3,7 @@ import os
 import json
 from dotenv import load_dotenv
 from textwrap import dedent
-from typing import List
+from typing import List, Dict
 from helpers.path_helper import GENERATED_PROMPS_DIR, PANELS_TEXT_DIR
 from helpers.aws_helper import (
     S3_BUCKET,
@@ -47,22 +47,22 @@ def generate_prompts():
 
 
 def ask_gpt(
-    previous_panels_description: list[dict],
+    previous_panels_description: List[Dict],
     nb_panels_to_generate: int = 4,
-) -> List[dict]:
+) -> List[Dict]:
     messages = set_message(nb_panels_to_generate, previous_panels_description)
     response = openai.ChatCompletion.create(model=GPT_MODEL, messages=messages)
     new_prompts = extract_panels_prompts(response)
     return new_prompts
 
 
-def extract_panels_prompts(response: dict) -> List[dict]:
+def extract_panels_prompts(response: Dict) -> List[Dict]:
     prompts_str = response["choices"][0]["message"]["content"]
     prompts_list = split_prompts_str(prompts_str)
     return prompts_list
 
 
-def split_prompts_str(prompts_str) -> List[dict]:
+def split_prompts_str(prompts_str) -> List[Dict]:
     prompts = prompts_str.split("\n\n")
     result = []
     for prompt in prompts:
@@ -75,7 +75,7 @@ def split_prompts_str(prompts_str) -> List[dict]:
     return result
 
 
-def format_panels_description(previous_panels_description: list[dict]):
+def format_panels_description(previous_panels_description: List[Dict]):
     result = ""
 
     for i, panel in enumerate(previous_panels_description):
@@ -92,7 +92,7 @@ def format_panels_description(previous_panels_description: list[dict]):
 
 def set_message(
     nb_panels_to_generate: int,
-    previous_panels_description: list[dict],
+    previous_panels_description: List[Dict],
 ):
     return [
         {

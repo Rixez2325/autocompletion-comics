@@ -58,7 +58,7 @@ def get_zoom_matrix(bound: Rect) -> Matrix:
     return fitz.Matrix(zoom, zoom)
 
 
-def to_ndarray(pages: list[Page]) -> List[np.ndarray]:
+def to_ndarray(pages: List[Page]) -> List[np.ndarray]:
     image_list = [page_to_ndarray(page) for page in pages]
     return image_list
 

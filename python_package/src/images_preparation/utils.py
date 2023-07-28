@@ -6,7 +6,7 @@ DEFAULT_FORMAT = "png"
 
 
 def save_images_localy(
-    images: list[np.ndarray],
+    images: List[np.ndarray],
     output_directory,
     document_title,
     image_type,

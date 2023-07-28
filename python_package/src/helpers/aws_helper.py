@@ -85,7 +85,7 @@ def load_json_from_s3(folder_prefix) -> List:
     ]
 
 
-def save_pdf_to_s3(objects: list, folder_prefix, bucket_name=S3_BUCKET):
+def save_pdf_to_s3(objects: List, folder_prefix, bucket_name=S3_BUCKET):
     s3_client = boto3.client("s3")
     responses = {}
 
@@ -97,7 +97,7 @@ def save_pdf_to_s3(objects: list, folder_prefix, bucket_name=S3_BUCKET):
     return responses
 
 
-def save_images_to_s3(pillow_images: list, folder_prefix, bucket_name=S3_BUCKET):
+def save_images_to_s3(pillow_images: List, folder_prefix, bucket_name=S3_BUCKET):
     s3_client = boto3.client("s3")
     for index, pillow_image in enumerate(pillow_images):
         with BytesIO() as buffer:

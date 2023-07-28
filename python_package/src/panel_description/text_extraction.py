@@ -49,7 +49,7 @@ def get_original_image_from_local(file_name) -> Image:
 
 
 # DEMO
-def demo_show_result(bubbles: list[dict], words: list[dict], file):
+def demo_show_result(bubbles: List[Dict], words: List[Dict], file):
     image = get_original_image_from_local(file)
     # image = get_original_image_from_s3(s3_connection)
     width, height = image.size
@@ -60,7 +60,7 @@ def demo_show_result(bubbles: list[dict], words: list[dict], file):
 
 
 # DEMO
-def display_bubbles(image: Image, blocks: list[dict], width: int, height: int, color):
+def display_bubbles(image: Image, blocks: List[Dict], width: int, height: int, color):
     for block in blocks:
         print(
             f"""
@@ -132,12 +132,12 @@ def get_request_document_througt_s3(bucket, document) -> Dict[str, str]:
     return {"S3Object": {"Bucket": bucket, "Name": document}}
 
 
-def textract_api_request(textract_client: TextractClient, document: dict) -> List[dict]:
+def textract_api_request(textract_client: TextractClient, document: Dict) -> List[Dict]:
     response = textract_client.detect_document_text(Document=document)
     return response["Blocks"]
 
 
-def get_lines(blocks: list[dict]) -> List[dict]:
+def get_lines(blocks: List[Dict]) -> List[Dict]:
     return [
         {
             "Text": block["Text"],
@@ -149,7 +149,7 @@ def get_lines(blocks: list[dict]) -> List[dict]:
     ]
 
 
-def get_words(blocks: list[dict]) -> List[dict]:
+def get_words(blocks: List[Dict]) -> List[Dict]:
     return [
         {
             "Text": block["Text"],
@@ -161,7 +161,7 @@ def get_words(blocks: list[dict]) -> List[dict]:
     ]
 
 
-def horizontaly_close(bbox1: dict, bbox2: dict) -> bool:
+def horizontaly_close(bbox1: Dict, bbox2: Dict) -> bool:
     return (
         abs(
             (bbox1["Left"] + (bbox1["Width"] / 2))
@@ -171,7 +171,7 @@ def horizontaly_close(bbox1: dict, bbox2: dict) -> bool:
     )
 
 
-def verticaly_close(bbox1: dict, bbox2: dict) -> bool:
+def verticaly_close(bbox1: Dict, bbox2: Dict) -> bool:
     y_dist = abs(
         bbox1["Top"] + bbox1["Height"] / 2 - bbox2["Top"] - bbox2["Height"] / 2
     )
@@ -179,7 +179,7 @@ def verticaly_close(bbox1: dict, bbox2: dict) -> bool:
     return y_dist - (bbox1["Height"] / 2 + bbox2["Height"] / 2) < THRESHOLD
 
 
-def merge_lines(lines: list[dict], threshold=THRESHOLD) -> List[dict]:
+def merge_lines(lines: List[Dict], threshold=THRESHOLD) -> List[Dict]:
     bubbles = []
     for line in lines:
         bbox1 = line["BoundingBox"]
@@ -206,22 +206,22 @@ def merge_lines(lines: list[dict], threshold=THRESHOLD) -> List[dict]:
     return bubbles
 
 
-def sort_bubbles(merged_lines: list[dict]) -> List[dict]:
+def sort_bubbles(merged_lines: List[Dict]) -> List[Dict]:
     return sorted(merged_lines, key=lambda line: line["BoundingBox"]["Left"])
 
 
 # TODO dynamic definition of object name
-def write_result_in_s3(merged_lines: list[dict], s3_connection: S3ServiceResource):
+def write_result_in_s3(merged_lines: List[Dict], s3_connection: S3ServiceResource):
     json_file = json.dumps(merged_lines).encode("UTF-8")
     write_in_s3(json_file, s3_connection, S3_BUCKET, S3_DEMO_OUTPUT)
 
 
-def write_result_in_s3_old(bubbles: list[dict], s3_connection: S3ServiceResource):
+def write_result_in_s3_old(bubbles: List[Dict], s3_connection: S3ServiceResource):
     s3_file = s3_connection.Object(S3_BUCKET, S3_DEMO_OUTPUT)
     s3_file.put(Body=(bytes(json.dumps(bubbles).encode("UTF-8"))))
 
 
-def write_result_localy(bubbles: list[dict], output_path):
+def write_result_localy(bubbles: List[Dict], output_path):
     with open(output_path, "w") as outfile:
         json.dump(bubbles, outfile)
 

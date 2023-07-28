@@ -64,7 +64,7 @@ def format_prompt(
     }
 
 
-def save_images_local(images: list[Image]):
+def save_images_local(images: List[Image]):
     for i, image in enumerate(images):
         with open(f"{GENERATED_PANELS_DIR}/image_{i}.png", "w") as f:
             image.save(f, format="PNG")
