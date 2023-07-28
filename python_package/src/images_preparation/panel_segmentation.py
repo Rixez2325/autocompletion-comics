@@ -5,7 +5,7 @@ from scipy import ndimage
 from skimage.measure import label, regionprops
 from PIL import Image
 from images_preparation.utils import save_images_localy
-from typing import List
+from typing import List, Tuple
 from helpers.path_helper import COMICS_PAGES_DIR, PANELS_DIR, load_images_from_local
 from helpers.aws_helper import load_images_from_s3, save_images_to_s3
 
@@ -62,15 +62,15 @@ def extract_regions(edges_img: np.ndarray) -> List:
     return regionprops(labels)
 
 
-def is_bboxes_overlaping(a: tuple, b: tuple) -> bool:
+def is_bboxes_overlaping(a: Tuple, b: Tuple) -> bool:
     return a[0] < b[2] and a[2] > b[0] and a[1] < b[3] and a[3] > b[1]
 
 
-def merge_bboxes(a: tuple, b: tuple) -> tuple:
+def merge_bboxes(a: Tuple, b: Tuple) -> tuple:
     return (min(a[0], b[0]), min(a[1], b[1]), max(a[2], b[2]), max(a[3], b[3]))
 
 
-def refine_regions_into_panels(regions: List, img_shape: tuple) -> List[tuple]:
+def refine_regions_into_panels(regions: List, img_shape: Tuple) -> List[tuple]:
     panels_bbox = []
     for region in regions:
         for i, panel in enumerate(panels_bbox):
@@ -83,7 +83,7 @@ def refine_regions_into_panels(regions: List, img_shape: tuple) -> List[tuple]:
     return remove_small_panels(panels_bbox, img_shape)
 
 
-def remove_small_panels(panels_bbox: List[tuple], img_shape: tuple) -> List[tuple]:
+def remove_small_panels(panels_bbox: List[tuple], img_shape: Tuple) -> List[tuple]:
     for i, panel in reversed(list(enumerate(panels_bbox))):
         img_area = (panel[2] - panel[0]) * (panel[3] - panel[1])
         if img_area < 0.01 * img_shape[0] * img_shape[1]:
