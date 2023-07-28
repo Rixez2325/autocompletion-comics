@@ -1,11 +1,19 @@
+import io
 import fitz
 from fitz import Page, Document, Pixmap, Matrix, Rect
 from PIL import Image
 import numpy as np
 from typing import List
 from images_preparation.utils import save_images_localy
-from helpers.aws_helper import load_pdf_from_s3, save_images_to_s3
-from helpers.path_helper import PDF_DIR, COMICS_PAGES_DIR, load_pdf_from_local
+from helpers.aws_helper import (
+    load_pdf_from_s3,
+    save_images_to_s3,
+)
+from helpers.path_helper import (
+    PDF_DIR,
+    COMICS_PAGES_DIR,
+    load_pdf_from_local,
+)
 
 
 OUTPUT_WIDTH = 600

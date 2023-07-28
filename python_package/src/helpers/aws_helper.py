@@ -118,3 +118,8 @@ def save_json_to_s3(json_objects, folder_prefix: str, bucket_name: str = S3_BUCK
         json_key = f"{folder_prefix}/data_{index}.json"
         json_content = json.dumps(json_data)
         s3_client.put_object(Bucket=bucket_name, Key=json_key, Body=json_content)
+
+
+def download_file_localy(local_path: str, key: str, bucket_name: str = S3_BUCKET):
+    s3 = boto3.client("s3")
+    s3.download_file(bucket_name, key, local_path)

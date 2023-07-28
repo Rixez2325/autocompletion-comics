@@ -5,7 +5,6 @@ from images_preparation.panel_segmentation import cut_pages
 
 def main(aws: bool = False):
     if aws:
-        cut_pdf(aws)
         cut_pages(aws)
     else:
         args = parse_arguments()
