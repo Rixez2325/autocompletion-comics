@@ -14,8 +14,8 @@ IMAGE_TYPE = "_##_panel_"
 
 def cut_pages(
     aws: bool = False,
-    input_directory: str = COMICS_PAGES_DIR,
-    output_directory: str = PANELS_DIR,
+    input_directory=COMICS_PAGES_DIR,
+    output_directory=PANELS_DIR,
 ):
     if aws:
         pages = load_images_from_s3(input_directory)

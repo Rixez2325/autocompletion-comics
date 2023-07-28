@@ -44,12 +44,12 @@ def demo():
 
 
 # DEMO
-def get_original_image_from_local(file_name: str) -> Image:
+def get_original_image_from_local(file_name) -> Image:
     return Image.open(file_name)
 
 
 # DEMO
-def demo_show_result(bubbles: list[dict], words: list[dict], file: str):
+def demo_show_result(bubbles: list[dict], words: list[dict], file):
     image = get_original_image_from_local(file)
     # image = get_original_image_from_s3(s3_connection)
     width, height = image.size
@@ -60,9 +60,7 @@ def demo_show_result(bubbles: list[dict], words: list[dict], file: str):
 
 
 # DEMO
-def display_bubbles(
-    image: Image, blocks: list[dict], width: int, height: int, color: str
-):
+def display_bubbles(image: Image, blocks: list[dict], width: int, height: int, color):
     for block in blocks:
         print(
             f"""
@@ -90,8 +88,8 @@ def display_bubbles(
 
 def extract_panels_text(
     aws: bool = False,
-    input_directory: str = PANELS_DIR,
-    output_directory: str = PANELS_TEXT_DIR,
+    input_directory=PANELS_DIR,
+    output_directory=PANELS_TEXT_DIR,
 ):
     if aws:
         panels = load_images_from_s3(input_directory)
@@ -117,7 +115,7 @@ def init_aws_instance() -> tuple[S3ServiceResource, TextractClient]:
 
 
 def get_request_document_througt_local_file(
-    file_full_path: str,
+    file_full_path,
 ) -> Dict[str, bytes]:
     with open(file_full_path, "rb") as image_file:
         return {"Bytes": image_file.read()}
@@ -130,7 +128,7 @@ def pillow_image_to_bytes(image) -> Dict[str, bytes]:
     return {"Bytes": bytes_data}
 
 
-def get_request_document_througt_s3(bucket: str, document: str) -> Dict[str, str]:
+def get_request_document_througt_s3(bucket, document) -> Dict[str, str]:
     return {"S3Object": {"Bucket": bucket, "Name": document}}
 
 
@@ -223,7 +221,7 @@ def write_result_in_s3_old(bubbles: list[dict], s3_connection: S3ServiceResource
     s3_file.put(Body=(bytes(json.dumps(bubbles).encode("UTF-8"))))
 
 
-def write_result_localy(bubbles: list[dict], output_path: str):
+def write_result_localy(bubbles: list[dict], output_path):
     with open(output_path, "w") as outfile:
         json.dump(bubbles, outfile)
 

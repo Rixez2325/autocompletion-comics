@@ -22,8 +22,8 @@ IMAGE_TYPE = "_##_page_"
 
 def cut_pdf(
     aws: bool = False,
-    input_directory: str = PDF_DIR,
-    output_directory: str = COMICS_PAGES_DIR,
+    input_directory=PDF_DIR,
+    output_directory=COMICS_PAGES_DIR,
 ):
     if aws:
         comics = load_pdf_from_s3(input_directory)
@@ -45,7 +45,7 @@ def process_pdf(pdf: Document) -> List[np.ndarray]:
     return to_ndarray(pages)
 
 
-def get_title(file_path: str) -> str:
+def get_title(file_path) -> str:
     return file_path.split("/")[-1].split(".")[-2]
 
 

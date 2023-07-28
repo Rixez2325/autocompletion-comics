@@ -23,8 +23,8 @@ SPACING = 10
 
 
 def create_pdf_demo(
-    input_path: str = GENERATED_PANELS_DIR,
-    output_pdf: str = f"{GENERATED_PAGE_DIR}/result.pdf",
+    input_path=GENERATED_PANELS_DIR,
+    output_pdf=f"{GENERATED_PAGE_DIR}/result.pdf",
 ):
     panels = get_panels_from_local(input_path)
 
@@ -38,8 +38,8 @@ def create_pdf_demo(
 
 
 def create_pdf(
-    input_path: str = GENERATED_PANELS_DIR,
-    output_path: str = f"{GENERATED_PAGE_DIR}",
+    input_path=GENERATED_PANELS_DIR,
+    output_path=f"{GENERATED_PAGE_DIR}",
 ):
     panels = load_images_from_s3(input_path)
 
@@ -56,7 +56,7 @@ def create_pdf(
     save_pdf_to_s3([buffer], output_path)
 
 
-def get_panels_from_local(dir_path: str) -> List:
+def get_panels_from_local(dir_path) -> List:
     return [
         Image.open(os.path.join(dir_path, f))
         for f in os.listdir(dir_path)

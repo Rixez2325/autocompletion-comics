@@ -32,7 +32,7 @@ def generate_images():
     # save_images_to_s3(images, GENERATED_PANELS_DIR)
 
 
-def generate_image(pipeline: DiffusionPipeline, prompt: str) -> Image:
+def generate_image(pipeline: DiffusionPipeline, prompt) -> Image:
     kwargs = format_prompt(
         prompt,
         num_inference_steps=1,
@@ -44,7 +44,7 @@ def generate_image(pipeline: DiffusionPipeline, prompt: str) -> Image:
 
 
 def format_prompt(
-    prompt: str,
+    prompt,
     width: int = 368 * 2,
     height: int = 544 * 2,
     num_images_per_prompt: int = 1,
@@ -70,7 +70,7 @@ def save_images_local(images: list[Image]):
             image.save(f, format="PNG")
 
 
-def init_pipeline(pretrained_model_name_or_path: str = COMIC_DIFFUSION_REPOSITORY):
+def init_pipeline(pretrained_model_name_or_path=COMIC_DIFFUSION_REPOSITORY):
     return DiffusionPipeline.from_pretrained(
         pretrained_model_name_or_path=pretrained_model_name_or_path,
         safety_checker=None,

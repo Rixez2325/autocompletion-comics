@@ -62,7 +62,7 @@ def extract_panels_prompts(response: dict) -> List[dict]:
     return prompts_list
 
 
-def split_prompts_str(prompts_str: str) -> List[dict]:
+def split_prompts_str(prompts_str) -> List[dict]:
     prompts = prompts_str.split("\n\n")
     result = []
     for prompt in prompts:

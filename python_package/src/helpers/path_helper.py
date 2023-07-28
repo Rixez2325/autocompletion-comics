@@ -16,21 +16,21 @@ PANELS_TEXT_DIR = f"{DATASETS_DIR}/panels_text"
 PDF_DIR = f"{DATASETS_DIR}/pdf"
 
 
-def load_pdf_from_local(folder_path: str):
+def load_pdf_from_local(folder_path):
     return [
         fitz.open(os.path.join(folder_path, filename))
         for filename in os.listdir(folder_path)
     ]
 
 
-def load_images_from_local(folder_path: str):
+def load_images_from_local(folder_path):
     return [
         Image.open(os.path.join(folder_path, filename))
         for filename in os.listdir(folder_path)
     ]
 
 
-def load_json_from_local(folder_path: str):
+def load_json_from_local(folder_path):
     return [
         json.load(open(os.path.join(folder_path, filename), "r"))
         for filename in os.listdir(folder_path)
